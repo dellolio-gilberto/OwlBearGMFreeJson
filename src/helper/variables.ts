@@ -20,27 +20,27 @@ export const version = "3.3.4";
 
 export const changelogModal: Modal = {
     id: modalId,
-    url: "/modal.html?content=changelog",
+    url: "/OwlBearGMFreeJson/modal.html?content=changelog",
 };
 
 export const helpModal: Modal = {
     id: modalId,
-    url: "/modal.html?content=help",
+    url: "/OwlBearGMFreeJson/modal.html?content=help",
 };
 
 export const settingsModal: Modal = {
     id: modalId,
-    url: "/modal.html?content=settings",
+    url: "/OwlBearGMFreeJson/modal.html?content=settings",
 };
 
 export const diceModal: Modal = {
     id: modalId,
-    url: "/modal.html?content=dddice",
+    url: "/OwlBearGMFreeJson/modal.html?content=dddice",
 };
 
 export const diceTrayModal: Modal = {
     id: diceTrayModalId,
-    url: "/modal.html?content=dicetray",
+    url: "/OwlBearGMFreeJson/modal.html?content=dicetray",
     fullScreen: true,
     hidePaper: true,
     hideBackdrop: true,
@@ -49,7 +49,7 @@ export const diceTrayModal: Modal = {
 
 export const rollLogPopover: Popover = {
     id: rollLogPopoverId,
-    url: "/rolllog.html",
+    url: "/OwlBearGMFreeJson/rolllog.html",
     width: 350,
     height: 200,
     anchorOrigin: { horizontal: "RIGHT", vertical: "BOTTOM" },
@@ -61,7 +61,7 @@ export const rollLogPopover: Popover = {
 
 export const statblockPopover: Popover = {
     id: statblockPopoverId,
-    url: "/statblock.html",
+    url: "/OwlBearGMFreeJson/statblock.html",
     width: 500,
     height: 600,
     transformOrigin: { vertical: "TOP", horizontal: "RIGHT" },
