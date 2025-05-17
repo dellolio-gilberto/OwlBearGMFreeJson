@@ -1,1 +1,1 @@
-export const TTRPG_URL = "https://api.tabletop-almanac.com/api/v1/"
+export const TTRPG_URL = "https://api.tabletop-almanac.com/api/v1"
