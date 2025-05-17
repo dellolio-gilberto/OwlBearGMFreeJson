@@ -5,6 +5,7 @@ import copy from "rollup-plugin-copy";
 
 declare var __dirname: string;
 export default defineConfig({
+    base: "/OwlBearGMFreeJson/",
     server: { host: "0.0.0.0", cors: true },
     assetsInclude: ["**/*.md"],
     build: {

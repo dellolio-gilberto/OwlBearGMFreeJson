@@ -6,7 +6,8 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "deploy": "gh-pages -d dist"
     },
     "engines": {
         "node": ">=18"
@@ -27,6 +28,7 @@
         "@types/react-beautiful-dnd": "^13.1.8",
         "@types/react-dom": "^18.3.1",
         "@types/uuid": "^10.0.0",
+        "gh-pages": "^6.3.0",
         "openapi-typescript": "^7.4.3",
         "postcss": "^8.4.49",
         "prettier": "^3.4.2",
