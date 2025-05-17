@@ -11,12 +11,12 @@ export default defineConfig({
     build: {
         rollupOptions: {
             input: {
-                main: resolve(__dirname, "index.html"),
-                popover: resolve(__dirname, "popover.html"),
-                background: resolve(__dirname, "background.html"),
-                modal: resolve(__dirname, "modal.html"),
-                statblock: resolve(__dirname, "statblock.html"),
-                rolllog: resolve(__dirname, "rolllog.html"),
+                main: resolve(__dirname, import.meta.env.BASE_URL + "index.html"),
+                popover: resolve(__dirname, import.meta.env.BASE_URL + "popover.html"),
+                background: resolve(__dirname, import.meta.env.BASE_URL + "background.html"),
+                modal: resolve(__dirname, import.meta.env.BASE_URL + "modal.html"),
+                statblock: resolve(__dirname, import.meta.env.BASE_URL + "statblock.html"),
+                rolllog: resolve(__dirname, import.meta.env.BASE_URL + "rolllog.html"),
             },
             /**
              * Ignore "use client" waning since we are not using SSR

@@ -4,11 +4,11 @@
     "manifest_version": 1,
     "author": "dellolio-gilberto, TheEpicSmoking",
     "description": "GM's grimorie with possibility to add json manually",
-    "icon": "/Dragon.png",
+    "icon": "./Dragon.png",
     "homepage_url": "https://github.com/dellolio-gilberto/OwlBearGMFreeJson",
     "action": {
         "title": "GMsGrimorie-NoAlmanac",
-        "icon": "/Dragon.png",
+        "icon": "./Dragon.png",
         "popover": "/",
         "height": 1000,
         "width": 579
