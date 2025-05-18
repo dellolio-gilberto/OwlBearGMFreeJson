@@ -1,7 +1,7 @@
 {
     "name": "GMsGrimorie-NoAlmanac",
-    "version": "1.0.8",
-    "manifest_version": 2,
+    "version": "1.0.9",
+    "manifest_version": 3,
     "author": "dellolio-gilberto, TheEpicSmoking",
     "description": "GM's grimorie with possibility to add json manually",
     "icon": "/OwlBearGMFreeJson/Dragon.png",
