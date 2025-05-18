@@ -23,4 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-.env
+.envls
+ttrpg-proxy/proxy/wrangler.jsonc
