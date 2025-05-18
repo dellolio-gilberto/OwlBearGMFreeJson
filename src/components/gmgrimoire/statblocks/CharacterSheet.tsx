@@ -181,7 +181,7 @@ export const CharacterSheet = (props: { itemId: string }) => {
                                 setForceSearch={setForceSearch}
                                 empty={emptySearch}
                             />
-                            <button className={"back-button"} onClick={() => setId(null)}>
+                            <button className={"import-button"} onClick={() => setId(null)}>
                               Import
                             </button>
                             <StatblockWrapper
