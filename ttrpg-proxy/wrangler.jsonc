@@ -1,0 +1,28 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "YOUR_WORKER_NAME",
+	/**
+	 * The name of your Worker. This is the name that will be used to identify your Worker in the Cloudflare dashboard.
+	 * It must be unique within your account.
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#name
+	 */
+	"main": "src/index.js",
+	"compatibility_date": "YOUR_COMPATIBILITY_DATE",
+	/**
+	 * The date that your Worker is compatible with. This is used to determine which version of the Worker to run.
+	 * It should be in the format YYYY-MM-DD.
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#compatibility-date
+	 */
+	"account_id": "YOUR_ACCOUNT_ID",
+	/**
+	 * The account ID of your Cloudflare account. You can find this in the Cloudflare dashboard.
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#account-id
+	 */
+	"observability": {
+		"enabled": true
+	}
+}
