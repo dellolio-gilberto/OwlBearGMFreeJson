@@ -12,6 +12,7 @@ async function handle(request) {
   const apiPath = url.pathname.replace(/^\/proxy/, "");
   const targetUrl = `https://api.tabletop-almanac.com/api/v1${apiPath}${url.search}`;
   const origin = request.headers.get("Origin");
+  const auth = request.headers.get("Authorization")
 
   if (request.method === "OPTIONS") {
     return new Response(null, {
@@ -24,8 +25,14 @@ async function handle(request) {
     });
   }
   // API request
+  const headers = {};
+  if (auth) {
+    headers["Authorization"] = auth;
+  }
   const apiResponse = await fetch(targetUrl, {
+    headers: headers,
     // additional headers can be added here
+    
   });
 
   const { status } = apiResponse;
