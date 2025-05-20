@@ -139,7 +139,7 @@ const setupContextMenu = async () => {
         id: `${ID}/popover`,
         icons: [
             {
-                icon: "/iconPopover.svg",
+                icon: "/OwlBearGMFreeJson/iconPopover.svg",
                 label: "GM's Grimoire",
                 filter: {
                     some: [{ key: ["metadata", `${itemMetadataKey}`, "hpTrackerActive"], value: true }],
@@ -147,7 +147,7 @@ const setupContextMenu = async () => {
                 },
             },
             {
-                icon: "/iconPopover.svg",
+                icon: "/OwlBearGMFreeJson/iconPopover.svg",
                 label: "GM's Grimoire",
                 filter: {
                     every: [
@@ -162,7 +162,7 @@ const setupContextMenu = async () => {
             },
         ],
         embed: {
-            url: "/popover.html",
+            url: "/OwlBearGMFreeJson/popover.html",
             height: 100,
         },
     });
@@ -171,7 +171,7 @@ const setupContextMenu = async () => {
         id: `${ID}/remove`,
         icons: [
             {
-                icon: "/iconOff.svg",
+                icon: "/OwlBearGMFreeJson/iconOff.svg",
                 label: "Remove from Grimoire",
                 filter: {
                     some: [{ key: ["metadata", `${itemMetadataKey}`, "hpTrackerActive"], value: true }],
@@ -201,7 +201,7 @@ const setupContextMenu = async () => {
         id: `${ID}/add-to-grimoire`,
         icons: [
             {
-                icon: "/icon.svg",
+                icon: "/OwlBearGMFreeJson/icon.svg",
                 label: "Add to Grimoire",
                 filter: {
                     every: [
@@ -241,7 +241,7 @@ const setupContextMenu = async () => {
         id: `${ID}/add-prop-to-grimoire`,
         icons: [
             {
-                icon: "/icon.svg",
+                icon: "/OwlBearGMFreeJson/icon.svg",
                 label: "Add to Grimoire",
                 filter: {
                     every: [
