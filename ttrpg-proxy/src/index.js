@@ -46,13 +46,19 @@ export default {  async fetch(request, env, ctx) {
     headers["Authorization"] = auth;
   }
 
-  const requestedSlug = apiPath.replace(/^\/e5\/statblock\//, "");
-  console.log("requestedSlug", requestedSlug);
-  let DBFetch = await env.EXTRA_STATBLOCKS.get(requestedSlug);
-  console.log("DBFetch", DBFetch);
-  if (DBFetch) {
-    const parsedData = JSON.parse(DBFetch);
-    return new Response(JSON.stringify(parsedData), {
+  if (apiPath.startsWith("/e5/statblock/search")) {
+    let DB = await env.EXTRA_STATBLOCKS.list();
+    const searchedName = new URLSearchParams(url.search).get("search_string");
+    const searchRegex = new RegExp(String.raw`^${searchedName}`, "i");
+    console.log("searchedName", searchedName);
+    const searchResults = [];
+    for (const key in DB.keys) {
+      const statblock = await env.EXTRA_STATBLOCKS.get(DB.keys[key].name);
+      console.log("statblock", JSON.parse(statblock).name);
+      if (searchedName && JSON.parse(statblock).name.match(searchRegex))
+        searchResults.push(statblock);
+    }
+    return new Response(searchResults, {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -61,6 +67,25 @@ export default {  async fetch(request, env, ctx) {
         "Access-Control-Allow-Headers": "Content-Type,Authorization",
       }
     });
+  }
+  else {
+    const requestedSlug = apiPath.replace(/^\/e5\/statblock\//, "");
+    console.log("requestedSlug", requestedSlug);
+    let DBFetch = await env.EXTRA_STATBLOCKS.get(requestedSlug);
+    console.log("DBFetch", DBFetch);
+    if (DBFetch) {
+      const parsedData = JSON.parse(DBFetch);
+      return new Response(JSON.stringify(parsedData), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": origin || "*",
+          "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
+          "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        }
+    });
+  }
+  
   }
   const apiResponse = await fetch(targetUrl, {
     headers: headers,
