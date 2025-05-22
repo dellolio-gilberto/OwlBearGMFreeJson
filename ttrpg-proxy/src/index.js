@@ -50,17 +50,25 @@ export default {  async fetch(request, env, ctx) {
     let DB = await env.EXTRA_STATBLOCKS.list();
     const searchedName = new URLSearchParams(url.search).get("search_string");
     const searchRegex = new RegExp(String.raw`\b${searchedName}`, "i");
-    console.log("searchedName", searchedName);
-    const searchResults = [];
+    const apiResponse = await fetch(targetUrl, {
+      headers: headers,
+      // additional headers can be added here
+    });
+    const { status } = apiResponse;
+    const contentType = apiResponse.headers.get("content-type") || "";
+    let apiSearchBuffer = await apiResponse.arrayBuffer();
+    const apiTypedArray = new Uint8Array(apiSearchBuffer);
+    const decoder = new TextDecoder();
+    let searchResults = JSON.parse(decoder.decode(apiTypedArray));
+
     for (const key in DB.keys) {
       let statblock = await env.EXTRA_STATBLOCKS.get(DB.keys[key].name);
       statblock = JSON.parse(statblock);
-      console.log("statblock", statblock.name);
       if (searchedName && statblock.name.match(searchRegex))
-        searchResults.push(statblock);
+        searchResults.unshift(statblock);
     }
-    console.log("searchResults", searchResults);
-    return new Response(JSON.stringify(searchResults), {
+    searchResults = JSON.stringify(searchResults);
+    return new Response(searchResults, {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -72,9 +80,7 @@ export default {  async fetch(request, env, ctx) {
   }
   else {
     const requestedSlug = apiPath.replace(/^\/e5\/statblock\//, "");
-    console.log("requestedSlug", requestedSlug);
     let DBFetch = await env.EXTRA_STATBLOCKS.get(requestedSlug);
-    console.log("DBFetch", DBFetch);
     if (DBFetch) {
       const parsedData = JSON.parse(DBFetch);
       return new Response(JSON.stringify(parsedData), {
