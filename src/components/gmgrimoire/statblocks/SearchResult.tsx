@@ -64,7 +64,9 @@ export const SearchResult5e = (props: SearchResultProps) => {
                                 className={`search-result ${entry.slug === props.current ? "current" : ""} ${
                                     entry.source &&
                                     !["cc", "tob2", "tob", "tob3", "menagerie", "wotc-srd"].includes(entry.source)
-                                        ? "custom"
+                                        ? entry.source.match(/\- NoTA$/)
+                                            ? "no-ta"
+                                            : "custom"
                                         : ""
                                 }`}
                                 key={entry.slug}
@@ -134,7 +136,11 @@ export const SearchResultPf = (props: SearchResultProps) => {
                         return (
                             <li
                                 className={`search-result ${entry.slug === props.current ? "current" : ""} ${
-                                    entry.source ? "custom" : ""
+                                    entry.source 
+                                        ? entry.source.match(/\- NoTA$/)
+                                            ? "no-ta"
+                                            : "custom"
+                                        : ""
                                 }`}
                                 key={entry.slug}
                                 onClick={() => setSheet(entry)}
