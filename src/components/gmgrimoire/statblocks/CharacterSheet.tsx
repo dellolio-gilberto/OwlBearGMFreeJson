@@ -10,6 +10,7 @@ import { useMetadataContext } from "../../../context/MetadataContext.ts";
 import { getSearchString, getTokenName, updateRoomMetadata } from "../../../helper/helpers.ts";
 import { useTokenListContext } from "../../../context/TokenContext.tsx";
 import { useShallow } from "zustand/react/shallow";
+import { uploadJsonFile } from "../../../helper/uploadFunc.ts";
 
 type SearchWrapperProps = {
     name: string;
@@ -142,6 +143,25 @@ export const CharacterSheet = (props: { itemId: string }) => {
         }
     };
 
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+            if (file.type !== "application/json") {
+              alert("Devi caricare un file JSON valido!");
+              return;
+            }
+
+            try {
+                await uploadJsonFile(file);
+                alert("Upload completato!");
+            } catch (error: any) {
+                alert("Errore durante l'upload: " + error.message);
+            }
+            
+        e.target.value = "";
+    };
+
     useEffect(() => {
         if (item) {
             initData();
@@ -166,6 +186,16 @@ export const CharacterSheet = (props: { itemId: string }) => {
             <button className={"back-button"} onClick={() => setId(null)}>
                 Back
             </button>
+            <input
+                type="file"
+                accept=".json"
+                style={{ display: "none" }}
+                id="file-upload"
+                onChange={handleFileChange}
+            />
+            <label htmlFor="file-upload" className="import-button">
+                Upload
+            </label>
             {item && data ? (
                 <div className={"content"}>
                     <div className={"statblock-top"}>
@@ -181,9 +211,6 @@ export const CharacterSheet = (props: { itemId: string }) => {
                                 setForceSearch={setForceSearch}
                                 empty={emptySearch}
                             />
-                            <button className={"import-button"} onClick={() => setId(null)}>
-                              Import
-                            </button>
                             <StatblockWrapper
                                 data={data}
                                 search={search}
