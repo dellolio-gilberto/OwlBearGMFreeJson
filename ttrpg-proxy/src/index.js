@@ -49,16 +49,18 @@ export default {  async fetch(request, env, ctx) {
   if (apiPath.startsWith("/e5/statblock/search")) {
     let DB = await env.EXTRA_STATBLOCKS.list();
     const searchedName = new URLSearchParams(url.search).get("search_string");
-    const searchRegex = new RegExp(String.raw`^${searchedName}`, "i");
+    const searchRegex = new RegExp(String.raw`\b${searchedName}`, "i");
     console.log("searchedName", searchedName);
     const searchResults = [];
     for (const key in DB.keys) {
-      const statblock = await env.EXTRA_STATBLOCKS.get(DB.keys[key].name);
-      console.log("statblock", JSON.parse(statblock).name);
-      if (searchedName && JSON.parse(statblock).name.match(searchRegex))
+      let statblock = await env.EXTRA_STATBLOCKS.get(DB.keys[key].name);
+      statblock = JSON.parse(statblock);
+      console.log("statblock", statblock.name);
+      if (searchedName && statblock.name.match(searchRegex))
         searchResults.push(statblock);
     }
-    return new Response(searchResults, {
+    console.log("searchResults", searchResults);
+    return new Response(JSON.stringify(searchResults), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
