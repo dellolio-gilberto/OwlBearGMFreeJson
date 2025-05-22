@@ -44,7 +44,7 @@ const SearchWrapper = (props: SearchWrapperProps) => {
                             <a href={"https://tabletop-almanac.com"} target={"_blank"}>
                                 Tabletop Almanac
                             </a>{" "}
-                            and enter you API Key here:
+                            and enter your API Key here:
                             <input
                                 type={"text"}
                                 onBlur={(e) => {
@@ -148,15 +148,15 @@ export const CharacterSheet = (props: { itemId: string }) => {
         if (!file) return;
 
             if (file.type !== "application/json") {
-              alert("Devi caricare un file JSON valido!");
+              //alert("Devi caricare un file JSON valido!");
               return;
             }
 
             try {
                 await uploadJsonFile(file);
-                alert("Upload completato!");
+                //alert("Upload completato!");
             } catch (error: any) {
-                alert("Errore durante l'upload: " + error.message);
+                //alert("Errore durante l'upload: " + error.message);
             }
             
         e.target.value = "";

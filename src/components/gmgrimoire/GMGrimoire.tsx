@@ -336,7 +336,7 @@ const Content = () => {
                     {playerContext.role === "GM" ? (
                         <>
                             <div className={"gmg-name"}>
-                                <span>Game Master's Grimoire </span>
+                                <span>GM's Grimoire Custom</span>
                                 <span className={"small"}>{version}</span>
                             </div>
                             <DragDropContext onDragEnd={onDragEnd}>
