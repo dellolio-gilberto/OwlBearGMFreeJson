@@ -7,21 +7,24 @@ export const ProxySetup = ({ onComplete }: { onComplete: () => void }) => {
     const [proxyUrl, setProxyUrl] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
+    const saveProxyUrl = async (url: string) => {
+        const metadata = await OBR.room.getMetadata();
+        const roomData = metadata[metadataKey] || {};
+        
+        await OBR.room.setMetadata({
+            [metadataKey]: {
+                ...roomData,
+                ttrpgProxyUrl: url
+            }
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         
         try {
-            const metadata = await OBR.room.getMetadata();
-            const roomData = metadata[metadataKey] || {};
-            
-            await OBR.room.setMetadata({
-                [metadataKey]: {
-                    ...roomData,
-                    ttrpgProxyUrl: proxyUrl.trim() || ""
-                }
-            });
-            
+            await saveProxyUrl(proxyUrl.trim() || "");
             onComplete();
         } catch (error) {
             console.error("Error saving proxy URL:", error);
@@ -33,16 +36,7 @@ export const ProxySetup = ({ onComplete }: { onComplete: () => void }) => {
     const handleSkip = async () => {
         setIsLoading(true);
         try {
-            const metadata = await OBR.room.getMetadata();
-            const roomData = metadata[metadataKey] || {};
-            
-            await OBR.room.setMetadata({
-                [metadataKey]: {
-                    ...roomData,
-                    ttrpgProxyUrl: ""
-                }
-            });
-            
+            await saveProxyUrl(""); // Salva stringa vuota
             onComplete();
         } catch (error) {
             console.error("Error skipping proxy setup:", error);
