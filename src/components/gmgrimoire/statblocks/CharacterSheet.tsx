@@ -11,6 +11,7 @@ import { getSearchString, getTokenName, updateRoomMetadata } from "../../../help
 import { useTokenListContext } from "../../../context/TokenContext.tsx";
 import { useShallow } from "zustand/react/shallow";
 import { uploadJsonFile } from "../../../helper/uploadFunc.ts";
+import { getTtrpgProxyUrl } from "../../../helper/helpers.ts";
 
 type SearchWrapperProps = {
     name: string;
@@ -31,7 +32,7 @@ type StatblockWrapperProps = {
 const SearchWrapper = (props: SearchWrapperProps) => {
     const playerContext = usePlayerContext();
     const room = useMetadataContext(useShallow((state) => state.room));
-
+    
     const searchRef = useRef<HTMLInputElement>(null);
 
     return (
@@ -143,24 +144,36 @@ export const CharacterSheet = (props: { itemId: string }) => {
         }
     };
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
         if (!file) return;
-
-            if (file.type !== "application/json") {
-              //alert("Devi caricare un file JSON valido!");
-              return;
+        
+        try {
+            const proxyUrl = getTtrpgProxyUrl(room || undefined);
+            if (!proxyUrl || proxyUrl === "https://nope") {
+                alert("Please configure your proxy URL in settings first.");
+                return;
             }
-
+        
+            if (file.type !== "application/json") {
+                //alert("Devi caricare un file JSON valido!");
+                return;
+            }
+        
             try {
-                await uploadJsonFile(file);
+                await uploadJsonFile(file, proxyUrl);
                 //alert("Upload completato!");
             } catch (error: any) {
                 //alert("Errore durante l'upload: " + error.message);
             }
-            
-        e.target.value = "";
-    };
+        
+            event.target.value = "";
+        } catch (error) {
+            console.error("Errore nel handleFileChange:", error);
+        }
+    }; // ✅ Aggiungi questa parentesi graffa di chiusura
+
+// ...resto del codice...
 
     useEffect(() => {
         if (item) {

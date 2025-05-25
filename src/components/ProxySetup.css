@@ -1,0 +1,143 @@
+.proxy-setup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.proxy-setup-card {
+    background: #2d3748;
+    border: 1px solid #4a5568;
+    border-radius: 8px;
+    padding: 2rem;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.proxy-setup-title {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: #e2e8f0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.proxy-setup-description {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #a0aec0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.proxy-input-group {
+    margin-bottom: 1.5rem;
+}
+
+.proxy-input-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.proxy-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #4a5568;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background: #1a202c;
+    color: #e2e8f0;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.proxy-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.proxy-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.proxy-input::placeholder {
+    color: #718096;
+}
+
+.proxy-help-text {
+    display: block;
+    margin-top: 0.5rem;
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+.proxy-button-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.proxy-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.proxy-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.proxy-btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.proxy-btn-primary:hover:not(:disabled) {
+    background: #5a67d8;
+}
+
+.proxy-btn-secondary {
+    background: #4a5568;
+    color: #e2e8f0;
+    border: 1px solid #718096;
+}
+
+.proxy-btn-secondary:hover:not(:disabled) {
+    background: #2d3748;
+}
+
+.proxy-info-box {
+    background: #1a202c;
+    border: 1px solid #4a5568;
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.proxy-info-title {
+    margin: 0 0 0.5rem 0;
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.proxy-info-text {
+    margin: 0;
+    color: #a0aec0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}

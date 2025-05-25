@@ -26,6 +26,11 @@ import { UserSettings } from "../api/tabletop-almanac/useUser.ts";
 import { updateHp } from "./hpHelpers.ts";
 import { updateAc } from "./acHelper.ts";
 
+
+//import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+//import { components } from "../schema";
+
+
 export const getYOffset = async (height: number) => {
     const metadata = (await OBR.room.getMetadata()) as Metadata;
     const roomMetadata = metadata[metadataKey] as RoomMetadata;
@@ -886,4 +891,27 @@ export const modulo = (n: number, m: number) => {
 
 export const delay = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export const getTtrpgProxyUrl = (room?: RoomMetadata): string => {
+    if (room?.ttrpgProxyUrl && room.ttrpgProxyUrl.trim() !== '') {
+        return room.ttrpgProxyUrl;
+    }
+    return TTRPG_URL;
+};
+
+export const makeApiRequest = (
+    endpoint: string, 
+    headers = {}, 
+    params = {}, 
+    method = "GET", 
+    proxyUrl?: string
+) => {
+    const baseUrl = proxyUrl || TTRPG_URL;
+    return axios.request({
+        url: `${baseUrl}${endpoint}`,
+        headers,
+        params,
+        method,
+    });
 };

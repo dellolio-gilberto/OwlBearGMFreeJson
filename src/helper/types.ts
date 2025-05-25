@@ -97,6 +97,7 @@ export type RoomMetadata = {
     diceUser?: Array<DiceUser>;
     disableDiceRoller?: boolean;
     tabletopAlmanacAPIKey?: string;
+    ttrpgProxyUrl?: string;
     disableHpBar?: boolean;
     disableColorGradient?: boolean;
 };
@@ -146,3 +147,4 @@ export type BestMatch = {
     source: string | undefined | null;
     statblock: InitialStatblockData;
 };
+

@@ -11,11 +11,13 @@ import { useTokenListContext } from "../../../context/TokenContext.tsx";
 import { useShallow } from "zustand/react/shallow";
 import { updateList } from "../../../helper/obrHelper.ts";
 import { GMGMetadata } from "../../../helper/types.ts";
+import { useState } from "react";
 
 export const Settings = () => {
     const tokens = useTokenListContext(useShallow((state) => state.tokens));
     const [room, scene] = useMetadataContext(useShallow((state) => [state.room, state.scene]));
 
+    const [proxyUrl, setProxyUrl] = useState(room?.ttrpgProxyUrl || "");
     const handleOffsetChange = (value: number) => {
         updateHpOffset(value);
         updateRoomMetadata(room, { hpBarOffset: value });
@@ -61,6 +63,21 @@ export const Settings = () => {
                             onChange={(e) => {
                                 updateRoomMetadata(room, { tabletopAlmanacAPIKey: e.currentTarget.value });
                             }}
+                        />
+                    </div>
+                    <div className={"proxy-url setting"}>
+                        TTRPG Proxy URL:
+                        <input
+                            type="url"
+                            value={proxyUrl}
+                            onChange={(e) => setProxyUrl(e.target.value)}
+                            onBlur={(e) => {
+                                const value = e.target.value.trim();
+                                updateRoomMetadata(room, { 
+                                    ttrpgProxyUrl: value === "" ? undefined : value 
+                                });
+                            }}
+                            placeholder="https://your-proxy-url.com"
                         />
                     </div>
                     <div className={"hp-mode setting-group vertical"}>

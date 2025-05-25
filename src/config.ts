@@ -1,1 +1,1 @@
-export const TTRPG_URL = "https://ttrpg-proxy.smoking.workers.dev"
+export const TTRPG_URL = "https://nope"

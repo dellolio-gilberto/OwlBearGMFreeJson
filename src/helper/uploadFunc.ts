@@ -1,8 +1,13 @@
-import { TTRPG_URL } from "../config.ts";
+// Rimuovi l'import di TTRPG_URL
+// import { TTRPG_URL } from "../config.ts";
 
-export async function uploadJsonFile(file: File): Promise<void> {
+export async function uploadJsonFile(file: File, proxyUrl?: string): Promise<void> {
   if (file.type !== "application/json") {
     throw new Error("Il file deve essere un JSON.");
+  }
+
+  if (!proxyUrl) {
+    throw new Error("Proxy URL not configured. Please set it up in settings.");
   }
 
   try {
@@ -13,7 +18,7 @@ export async function uploadJsonFile(file: File): Promise<void> {
       json.source = json.source + " - NoTA";
     }
 
-    const response = await fetch(`${TTRPG_URL}`, {
+    const response = await fetch(`${proxyUrl}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
