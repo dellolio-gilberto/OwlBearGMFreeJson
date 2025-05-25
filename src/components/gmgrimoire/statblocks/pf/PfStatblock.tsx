@@ -1,6 +1,6 @@
-import { useMetadataContext } from "../../../../context/MetadataContext.ts";
+//import { useMetadataContext } from "../../../../context/MetadataContext.ts";
 import { usePfGetStatblock } from "../../../../api/pf/usePfApi.ts";
-import { useShallow } from "zustand/react/shallow";
+//import { useShallow } from "zustand/react/shallow";
 import { PFStatblockContextProvider, usePFStatblockContext } from "../../../../context/PFStatblockContext.tsx";
 import styles from "../e5/e5statblock.module.scss";
 import { Loader } from "../../../general/Loader.tsx";
@@ -27,7 +27,7 @@ export const PFStatBlock = () => {
 };
 
 export const PFStatBlockWrapper = ({ slug, itemId }: { slug: string; itemId: string }) => {
-    const room = useMetadataContext(useShallow((state) => state.room));
+    //const room = useMetadataContext(useShallow((state) => state.room));
     const statblockQuery = usePfGetStatblock(slug);
     const statblock = statblockQuery.isSuccess && statblockQuery.data ? statblockQuery.data : null;
 

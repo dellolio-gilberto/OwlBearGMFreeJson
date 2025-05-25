@@ -1,6 +1,6 @@
-import { useMetadataContext } from "../../../../context/MetadataContext.ts";
+//import { useMetadataContext } from "../../../../context/MetadataContext.ts";
 import { useE5GetStatblock } from "../../../../api/e5/useE5Api.ts";
-import { useShallow } from "zustand/react/shallow";
+//import { useShallow } from "zustand/react/shallow";
 import { E5StatblockContextProvider, useE5StatblockContext } from "../../../../context/E5StatblockContext.tsx";
 import { Loader } from "../../../general/Loader.tsx";
 import styles from "./e5statblock.module.scss";

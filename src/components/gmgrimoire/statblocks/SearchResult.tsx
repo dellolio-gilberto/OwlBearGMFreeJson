@@ -3,7 +3,7 @@ import { Loader } from "../../general/Loader.tsx";
 import { E5Statblock, useE5SearchStatblock } from "../../../api/e5/useE5Api.ts";
 import { PfStatblock, usePfStatblockSearch } from "../../../api/pf/usePfApi.ts";
 import { useEffect } from "react";
-import { useMetadataContext } from "../../../context/MetadataContext.ts";
+//import { useMetadataContext } from "../../../context/MetadataContext.ts";
 import { updateTokenSheet } from "../../../helper/helpers.ts";
 import { useShallow } from "zustand/react/shallow";
 
@@ -92,7 +92,7 @@ export const SearchResult5e = (props: SearchResultProps) => {
 };
 
 export const SearchResultPf = (props: SearchResultProps) => {
-    const room = useMetadataContext(useShallow((state) => state.room));
+    //const room = useMetadataContext(useShallow((state) => state.room));
     const characterId = useCharSheet(useShallow((state) => state.characterId));
     const setSheet = (statblock: PfStatblock) => {
         if (characterId) {

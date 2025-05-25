@@ -5,8 +5,8 @@ import { PfSpell, usePfGetSpell } from "../../../../api/pf/usePfApi.ts";
 import { components } from "../../../../api/schema";
 import { SpellFilter } from "../SpellFilter.tsx";
 import { capitalize } from "lodash";
-import { useMetadataContext } from "../../../../context/MetadataContext.ts";
-import { useShallow } from "zustand/react/shallow";
+//import { useMetadataContext } from "../../../../context/MetadataContext.ts";
+//import { useShallow } from "zustand/react/shallow";
 import { FancyLineBreak, LineBreak } from "../../../general/LineBreak.tsx";
 import styles from "./statblock-spells.module.scss";
 
@@ -15,7 +15,7 @@ export type PfSpellList = components["schemas"]["SpelllistOut"];
 export type PfSpellOut = components["schemas"]["SpellStatblockOut"];
 
 const Spell = (props: { spell: PfSpellOut; statblock: string; stats: Stats }) => {
-    const room = useMetadataContext(useShallow((state) => state.room));
+    //const room = useMetadataContext(useShallow((state) => state.room));
     const [open, setOpen] = useState<boolean>(false);
 
     const spellQuery = usePfGetSpell(props.spell.slug);
