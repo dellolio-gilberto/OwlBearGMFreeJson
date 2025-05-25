@@ -8,7 +8,78 @@ export default {  async fetch(request, env, ctx) {
   if (auth) {
     headers["Authorization"] = auth;
   }
-  
+  const null_item = {
+    "id":0,
+    "slug":"null",
+    "created_at":"0000-00-00T00:00:00.0000000",
+    "tags":[],
+    "rules":[],
+    "name":"Ops...",
+    "type":"Error",
+    "description":"Your item didn't load correctly.",
+    "rarity":"Very Rare",
+    "consumable":false,
+    "sentient":false,
+    "can_equip":false,
+    "requires_attuning":false,
+    "cost":{"id":0,"cp":null,"sp":null,"ep":null,"gp":null,"pp":null,"item":null,"itemId":0},
+    "weight":null,
+    "range":"",
+    "spells":[],
+    "source":"null",
+    "license":null,
+    "active":false,
+    "user":null,
+    "userId":"null",
+    "stats":null,
+    "bonus":{"id":0,
+      "hp":0,
+      "armor_class":0,
+      "damage_vulnerabilities":null,
+      "damage_resistances":null,
+      "damage_immunities":null,
+      "condition_immunities":null,
+      "senses":[],
+      "proficiency":[],
+      "actions":[],
+      "bonus_actions":[],
+      "reactions":[],
+      "special_abilities":[],
+      "item":null,
+      "e5_ItemId":0,
+      "stats":null,
+      "speed":null,
+      "saving_throws":null,
+      "skills":null},
+    "modifiers":{"id":0,"stats":[],"item":null,"e5_ItemId":0},"charges":null,"costId":null,"e5_StatBlock_Item":null,"Party_Items":null,"ac":null}
+
+  const null_spell = {
+    "name":"Ops...",
+    "desc":"Your spell didn't load correctly.",
+    "higher_level":"",
+    "range":"",
+    "verbal":false,
+    "somatic":false,
+    "material":false,
+    "materials":"",
+    "ritual":false,
+    "duration":"",
+    "concentration":false,
+    "casting_time":"",
+    "level":0,
+    "is_attack":false,
+    "damage":null,
+    "dc":"",
+    "school":"Illusion",
+    "classes":[],
+    "archetypes":[],
+    "circles":[],
+    "upcasts":[],
+    "id":"null",
+    "slug":"null",
+    "active":false,
+    "source":"null"}
+
   async function resolveSpells(statblock)
   {
     for (let spell of statblock.spells) {
@@ -26,6 +97,9 @@ export default {  async fetch(request, env, ctx) {
         spellDBFetch = await apiResponse.json();
         console.log("API FETCH", spellDBFetch)
         console.log("API RESPONSE", apiResponse)
+        if (spellDBFetch.detail === "Slug null not found in database") {
+          spellDBFetch = null_spell;
+        }
         statblock.spells[statblock.spells.indexOf(spell)] = spellDBFetch;
       }
     }
@@ -54,6 +128,9 @@ export default {  async fetch(request, env, ctx) {
         itemDBFetch = await apiResponse.json();
         console.log("API FETCH", itemDBFetch)
         console.log("API RESPONSE", apiResponse)
+        if (itemDBFetch.detail === "Slug null not found in database") {
+          itemDBFetch = null_item;
+        }
         statblock.equipment[statblock.equipment.indexOf(equipment)].item = itemDBFetch;
       }
     }
