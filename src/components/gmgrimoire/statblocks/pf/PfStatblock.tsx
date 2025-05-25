@@ -28,7 +28,7 @@ export const PFStatBlock = () => {
 
 export const PFStatBlockWrapper = ({ slug, itemId }: { slug: string; itemId: string }) => {
     const room = useMetadataContext(useShallow((state) => state.room));
-    const statblockQuery = usePfGetStatblock(slug, room?.tabletopAlmanacAPIKey);
+    const statblockQuery = usePfGetStatblock(slug);
     const statblock = statblockQuery.isSuccess && statblockQuery.data ? statblockQuery.data : null;
 
     return statblock ? (

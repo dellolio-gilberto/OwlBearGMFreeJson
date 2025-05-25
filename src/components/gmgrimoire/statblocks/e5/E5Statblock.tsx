@@ -30,8 +30,8 @@ export const E5StatBlock = () => {
 };
 
 export const E5StatBlockWrapper = ({ slug, itemId }: { slug: string; itemId: string }) => {
-    const room = useMetadataContext(useShallow((state) => state.room));
-    const statblockQuery = useE5GetStatblock(slug, room?.tabletopAlmanacAPIKey);
+    //const room = useMetadataContext(useShallow((state) => state.room));
+    const statblockQuery = useE5GetStatblock(slug);
     const statblock = statblockQuery.isSuccess && statblockQuery.data ? statblockQuery.data : null;
 
     return statblock ? (

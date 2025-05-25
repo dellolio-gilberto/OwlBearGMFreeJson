@@ -61,35 +61,35 @@ const fetchPfSpell = (slug: string, apiKey?: string, proxyUrl?: string): Promise
         });
 };
 
-export const usePfStatblockSearch = (search_string: string, take: number, skip: number, apiKey?: string) => {
+export const usePfStatblockSearch = (search_string: string, take: number, skip: number) => {
     const room = useMetadataContext(useShallow((state) => state.room));
     const proxyUrl = getTtrpgProxyUrl(room || undefined);
     
     return useQuery<Array<PfStatblock>>({
-        queryKey: [search_string, take, skip, "search", apiKey, proxyUrl],
-        queryFn: () => fetchPfSearch(search_string, take, skip, apiKey || room?.tabletopAlmanacAPIKey, proxyUrl),
+        queryKey: [search_string, take, skip, "search", room?.tabletopAlmanacAPIKey, proxyUrl],
+        queryFn: () => fetchPfSearch(search_string, take, skip, room?.tabletopAlmanacAPIKey, proxyUrl),
         enabled: search_string !== "",
     });
 };
 
-export const usePfGetStatblock = (slug: string, apiKey?: string) => {
+export const usePfGetStatblock = (slug: string) => {
     const room = useMetadataContext(useShallow((state) => state.room));
     const proxyUrl = getTtrpgProxyUrl(room || undefined);
     
     return useQuery<PfStatblock | null>({
-        queryKey: [slug, "slug", apiKey, proxyUrl],
-        queryFn: () => fetchPfStatblock(slug, apiKey || room?.tabletopAlmanacAPIKey, proxyUrl),
+        queryKey: [slug, "slug", room?.tabletopAlmanacAPIKey, proxyUrl],
+        queryFn: () => fetchPfStatblock(slug, room?.tabletopAlmanacAPIKey, proxyUrl),
         enabled: slug !== "",
     });
 };
 
-export const usePfGetSpell = (slug: string, apiKey?: string) => {
+export const usePfGetSpell = (slug: string) => {
     const room = useMetadataContext(useShallow((state) => state.room));
     const proxyUrl = getTtrpgProxyUrl(room || undefined);
     
     return useQuery<PfSpell | null>({
-        queryKey: [slug, "slug", apiKey, proxyUrl],
-        queryFn: () => fetchPfSpell(slug, apiKey || room?.tabletopAlmanacAPIKey, proxyUrl),
+        queryKey: [slug, "slug", room?.tabletopAlmanacAPIKey, proxyUrl],
+        queryFn: () => fetchPfSpell(slug, room?.tabletopAlmanacAPIKey, proxyUrl),
         enabled: slug !== "",
     });
 };

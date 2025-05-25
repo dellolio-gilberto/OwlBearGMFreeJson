@@ -16,7 +16,7 @@ type SearchResultProps = {
 
 export const SearchResult5e = (props: SearchResultProps) => {
     const characterId = useCharSheet(useShallow((state) => state.characterId));
-    const room = useMetadataContext(useShallow((state) => state.room));
+    //const room = useMetadataContext(useShallow((state) => state.room));
     const setSheet = (statblock: E5Statblock) => {
         if (characterId) {
             if (statblock.slug === props.current) {
@@ -26,7 +26,7 @@ export const SearchResult5e = (props: SearchResultProps) => {
         }
     };
 
-    const searchQuery = useE5SearchStatblock(props.search, 200, 0, room?.tabletopAlmanacAPIKey);
+    const searchQuery = useE5SearchStatblock(props.search, 200, 0);
 
     useEffect(() => {
         if (searchQuery.isSuccess) {
@@ -103,7 +103,7 @@ export const SearchResultPf = (props: SearchResultProps) => {
         }
     };
 
-    const searchQuery = usePfStatblockSearch(props.search, 100, 0, room?.tabletopAlmanacAPIKey);
+    const searchQuery = usePfStatblockSearch(props.search, 100, 0);
 
     useEffect(() => {
         if (searchQuery.isSuccess) {

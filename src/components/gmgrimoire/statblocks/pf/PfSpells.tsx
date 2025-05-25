@@ -18,7 +18,7 @@ const Spell = (props: { spell: PfSpellOut; statblock: string; stats: Stats }) =>
     const room = useMetadataContext(useShallow((state) => state.room));
     const [open, setOpen] = useState<boolean>(false);
 
-    const spellQuery = usePfGetSpell(props.spell.slug, room?.tabletopAlmanacAPIKey);
+    const spellQuery = usePfGetSpell(props.spell.slug);
 
     const spell: PfSpell | null = spellQuery.isSuccess && spellQuery.data ? spellQuery.data : null;
 
