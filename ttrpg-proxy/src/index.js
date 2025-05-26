@@ -16,13 +16,13 @@ export default {  async fetch(request, env, ctx) {
     "rules":[],
     "name":"Ops...",
     "type":"Error",
-    "description":"Your item didn't load correctly.",
+    "description":"Your item was not found.",
     "rarity":"Very Rare",
     "consumable":false,
     "sentient":false,
     "can_equip":false,
     "requires_attuning":false,
-    "cost":{"id":0,"cp":null,"sp":null,"ep":null,"gp":null,"pp":null,"item":null,"itemId":0},
+    "cost":{"id":0,"cp":404,"sp":null,"ep":null,"gp":null,"pp":null,"item":null,"itemId":0},
     "weight":null,
     "range":"",
     "spells":[],
@@ -55,7 +55,7 @@ export default {  async fetch(request, env, ctx) {
 
   const null_spell = {
     "name":"Ops...",
-    "desc":"Your spell didn't load correctly.",
+    "desc":"Your spell was not found.",
     "higher_level":"",
     "range":"",
     "verbal":false,
@@ -108,7 +108,11 @@ export default {  async fetch(request, env, ctx) {
     for (let equipment of statblock.equipment) {
       let itemDBFetch = await env.EXTRA_ITEMS.get(equipment.item);
       if (itemDBFetch) {
-        statblock.equipment[statblock.equipment.indexOf(equipment)].item = JSON.parse(itemDBFetch);
+        itemDBFetch = JSON.parse(itemDBFetch);
+        delete itemDBFetch.cost.itemId;
+        delete itemDBFetch.cost.item
+        delete itemDBFetch.bonus.e5_ItemId;
+        delete itemDBFetch.bonus.item;
       }
       else {
         let itemID = await env.ID_REMAP.get(equipment.item);
@@ -120,8 +124,8 @@ export default {  async fetch(request, env, ctx) {
         if (itemDBFetch.detail === "Slug null not found in database") {
           itemDBFetch = null_item;
         }
-        statblock.equipment[statblock.equipment.indexOf(equipment)].item = itemDBFetch;
       }
+      statblock.equipment[statblock.equipment.indexOf(equipment)].item = itemDBFetch;
     }
     return statblock;
   }
@@ -251,8 +255,52 @@ export default {  async fetch(request, env, ctx) {
         "Access-Control-Allow-Headers": "Content-Type,Authorization",
       }
     });
-  }
-  else {
+  } else if (apiPath.startsWith("/edit/statblock/")) {
+    const requestedSlug = apiPath.replace(/^\/edit\/statblock\//, "");
+    let DBFetch = await env.EXTRA_STATBLOCKS.get(requestedSlug);
+    if (DBFetch) {
+      let parsedData = JSON.parse(DBFetch);
+      return new Response(JSON.stringify(parsedData), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": origin || "*",
+          "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
+          "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        }
+    });
+    }
+  } else if (apiPath.startsWith("/edit/spell/")) {
+    const requestedID = apiPath.replace(/^\/edit\/spell\//, "");
+    let DBFetch = await env.EXTRA_SPELLS.get(requestedID);
+    if (DBFetch) {
+      let parsedData = JSON.parse(DBFetch);
+      return new Response(JSON.stringify(parsedData), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": origin || "*",
+          "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
+          "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        }
+    });
+    }
+  } else if (apiPath.startsWith("/edit/item/")) {
+    const requestedID = apiPath.replace(/^\/edit\/item\//, "");
+    let DBFetch = await env.EXTRA_ITEMS.get(requestedID);
+    if (DBFetch) {
+      let parsedData = JSON.parse(DBFetch);
+      return new Response(JSON.stringify(parsedData), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": origin || "*",
+          "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
+          "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        }
+    });
+    }
+  } else {
     const requestedSlug = apiPath.replace(/^\/e5\/statblock\//, "");
     let DBFetch = await env.EXTRA_STATBLOCKS.get(requestedSlug);
     if (DBFetch) {
@@ -267,9 +315,9 @@ export default {  async fetch(request, env, ctx) {
           "Access-Control-Allow-Headers": "Content-Type,Authorization",
         }
     });
+    }
   }
-  
-  }
+
   const apiResponse = await fetch(targetUrl, {
     headers: headers,
     // additional headers can be added here
