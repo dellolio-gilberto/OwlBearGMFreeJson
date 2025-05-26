@@ -16,6 +16,7 @@ export type E5StatblockContextType = {
     item: Image;
     statblock: E5Statblock;
     equipmentBonuses: EquipmentBonuses;
+    itemId: string;
 };
 
 export const E5StatblockContext = createContext<E5StatblockContextType | null>(null);
@@ -42,6 +43,7 @@ export const E5StatblockContextProvider = (props: PropsWithChildren & { itemId: 
                     data: data,
                     item: item,
                     statblock: props.statblock,
+                    itemId: props.itemId,
                     stats: {
                         strength: equipmentBonuses.stats.strength,
                         dexterity: equipmentBonuses.stats.dexterity,
