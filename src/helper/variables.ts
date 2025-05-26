@@ -78,3 +78,10 @@ export const defaultStats: Stats = {
     wisdom: 0,
     charisma: 0,
 };
+
+export const quickReferenceModal: Modal = {
+    id: "quickreference.modal",
+    url: "https://dnd.milobedzki.pl/",
+    height: 800,
+    width: 1200,
+};

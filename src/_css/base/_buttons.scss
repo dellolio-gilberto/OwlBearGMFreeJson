@@ -364,3 +364,21 @@ button,
         }
     }
 }
+
+
+.help-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    justify-content: flex-end;
+    
+    @media (max-width: 768px) {
+        flex-direction: row;
+        align-items: flex-end;
+        
+        .top-button {
+            width: 35px;
+            height: 35px;
+        }
+    }
+}

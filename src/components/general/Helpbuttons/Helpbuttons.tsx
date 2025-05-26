@@ -5,6 +5,7 @@ import {
     settingsModal,
     statblockPopover,
     statblockPopoverId,
+    quickReferenceModal,
 } from "../../../helper/variables.ts";
 import { usePlayerContext } from "../../../context/PlayerContext.ts";
 import { useMetadataContext } from "../../../context/MetadataContext.ts";
@@ -74,7 +75,7 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
             />
             <Tippy content={"Load Statblock JSON File"}>
             <label htmlFor="file-upload" className={"tabletop-almanac-button top-button link"}>
-                <svg viewBox="-143.8 -210 800 800" fill="currentColor">
+                <svg viewBox="-136 -210 800 800" fill="currentColor">
                     <path d="M411.448,100.9l-94.7-94.7c-4.2-4.2-9.4-6.2-14.6-6.2h-210.1c-11.4,0-20.8,9.4-20.8,20.8v330.8c0,11.4,9.4,20.8,20.8,20.8 h132.1v95.7c0,11.4,9.4,20.8,20.8,20.8s20.8-9.4,20.8-19.8v-96.6h132.1c11.4,0,19.8-9.4,19.8-19.8V115.5 C417.748,110.3,415.648,105.1,411.448,100.9z M324.048,70.4l39.3,38.9h-39.3V70.4z M378.148,331.9h-112.3v-82.8l17.7,16.3 c10,10,25,3.1,28.1-1c7.3-8.3,7.3-21.8-1-29.1l-52-47.9c-8.3-7.3-20.8-7.3-28.1,0l-52,47.9c-8.3,8.3-8.3,20.8-1,29.1 c8.3,8.3,20.8,8.3,29.1,1l17.7-16.3v82.8h-111.4V41.6h169.6v86.3c0,11.4,9.4,20.8,20.8,20.8h74.9v183.2H378.148z"/>
                 </svg>
             </label>
@@ -118,6 +119,34 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
                 >
                     <StatblockSvg />
                 </button>
+            </Tippy>
+            <Tippy content={"Quick Reference DnD 5e"}>
+                <button
+                    className={"external-page-button top-button"}
+                    onClick={async () => {
+                        let width = 1200;
+                        let height = 800;
+                        try {
+                            width = await OBR.viewport.getWidth();
+                            height = await OBR.viewport.getHeight();
+                        } catch {}
+                        await OBR.modal.open({
+                            ...quickReferenceModal,
+                            width: Math.min(1200, width * 0.9),
+                            height: Math.min(800, height * 0.9),
+                        });
+                    }}
+                    title={"Quick Reference"}
+                >
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                          <path d="M12 6.90909C10.8999 5.50893 9.20406 4.10877 5.00119 4.00602C4.72513 3.99928 4.5 4.22351 4.5 4.49965C4.5 6.54813 4.5 14.3034 4.5 16.597C4.5 16.8731 4.72515 17.09 5.00114 17.099C9.20405 17.2364 10.8999 19.0998 12 20.5M12 6.90909C13.1001 5.50893 14.7959 4.10877 18.9988 4.00602C19.2749 3.99928 19.5 4.21847 19.5 4.49461C19.5 6.78447 19.5 14.3064 19.5 16.5963C19.5 16.8724 19.2749 17.09 18.9989 17.099C14.796 17.2364 13.1001 19.0998 12 20.5M12 6.90909L12 20.5" stroke="#000000" stroke-linejoin="round"></path>
+                          <path d="M19.2353 6H21.5C21.7761 6 22 6.22386 22 6.5V19.539C22 19.9436 21.5233 20.2124 21.1535 20.0481C20.3584 19.6948 19.0315 19.2632 17.2941 19.2632C14.3529 19.2632 12 21 12 21C12 21 9.64706 19.2632 6.70588 19.2632C4.96845 19.2632 3.64156 19.6948 2.84647 20.0481C2.47668 20.2124 2 19.9436 2 19.539V6.5C2 6.22386 2.22386 6 2.5 6H4.76471" stroke="#000000" stroke-linejoin="round"></path>
+                        </g>
+                    </svg>
+                 </button>
             </Tippy>
             {playerContext.role == "GM" ? (
                 <Tippy content={"Open Settings"}>
