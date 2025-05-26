@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 interface JsonEditorProps {
     isOpen: boolean;
     onClose: () => void;
-    jsonData: any;
+    slug: string; // ✅ CAMBIATO: prendi lo slug dal token
+    proxyUrl: string; // ✅ AGGIUNTO: il proxy URL
     onSave: (editedJson: any) => void;
     title?: string;
 }
@@ -11,20 +12,44 @@ interface JsonEditorProps {
 export const JsonEditor: React.FC<JsonEditorProps> = ({
     isOpen,
     onClose,
-    jsonData,
+    slug, // ✅ CAMBIATO: slug invece di jsonData
+    proxyUrl, // ✅ AGGIUNTO: proxyUrl
     onSave,
     title = "Edit JSON"
 }) => {
     const [jsonText, setJsonText] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [isValid, setIsValid] = useState(true);
-    const [viewMode, setViewMode] = useState<'formatted' | 'raw'>('raw'); // ✅ Inizia con raw
+    const [viewMode, setViewMode] = useState<'formatted' | 'raw'>('raw');
+    const [isLoading, setIsLoading] = useState(false); // ✅ AGGIUNTO: loading state
 
+    // ✅ CAMBIATO: Fetch JSON dall'endpoint invece di usare jsonData
     useEffect(() => {
-        if (jsonData) {
-            setJsonText(JSON.stringify(jsonData, null, 2));
+        if (isOpen && slug && proxyUrl) {
+            const fetchJsonFromEndpoint = async () => {
+                setIsLoading(true);
+                setError(null);
+                
+                try {
+                    const response = await fetch(`${proxyUrl}/edit/statblock/${slug}`);
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    setJsonText(JSON.stringify(data, null, 2));
+                    setIsValid(true);
+                } catch (err) {
+                    setError(`Failed to load JSON: ${err instanceof Error ? err.message : String(err)}`);
+                    setJsonText("");
+                    setIsValid(false);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            
+            fetchJsonFromEndpoint();
         }
-    }, [jsonData]);
+    }, [isOpen, slug, proxyUrl]);
 
     const handleJsonChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const value = e.target.value;
@@ -40,13 +65,36 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
         }
     };
 
-    const handleSave = () => {
+    // ✅ CAMBIATO: Salva sul proxy con POST
+    const handleSave = async () => {
+        if (!isValid) {
+            setError("Cannot save invalid JSON");
+            return;
+        }
+
+        setIsLoading(true);
         try {
             const parsedJson = JSON.parse(jsonText);
-            onSave(parsedJson);
+            
+            // ✅ POST sul proxy
+            const response = await fetch(`${proxyUrl}/edit/statblock/${slug}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonText
+            });
+
+            if (!response.ok) {
+                throw new Error(`Save failed: ${response.status}`);
+            }
+
+            onSave(parsedJson); // Callback per aggiornare UI locale
             onClose();
         } catch (err) {
-            setError("Cannot save invalid JSON");
+            setError(`Save failed: ${err instanceof Error ? err.message : String(err)}`);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -73,13 +121,14 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                             <button 
                                 className={`toggle-btn ${viewMode === 'formatted' ? 'active' : ''}`}
                                 onClick={() => setViewMode('formatted')}
-                                disabled={!isValid} // ✅ Disabilita se JSON non valido
+                                disabled={!isValid || isLoading}
                             >
                                 👁️ Preview
                             </button>
                             <button 
                                 className={`toggle-btn ${viewMode === 'raw' ? 'active' : ''}`}
                                 onClick={() => setViewMode('raw')}
+                                disabled={isLoading}
                             >
                                 ✏️ Edit
                             </button>
@@ -88,6 +137,7 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                             className="json-editor-close"
                             onClick={onClose}
                             aria-label="Close editor"
+                            disabled={isLoading}
                         >
                             ✕
                         </button>
@@ -99,13 +149,15 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                         <button 
                             className="json-editor-btn json-editor-btn-secondary"
                             onClick={handleFormat}
-                            disabled={!isValid}
+                            disabled={!isValid || isLoading}
                             title="Format and prettify JSON"
                         >
                             🎨 Format
                         </button>
                         <span className="json-status">
-                            {isValid ? (
+                            {isLoading ? (
+                                <span className="status-loading">⏳ Loading...</span>
+                            ) : isValid ? (
                                 <span className="status-valid">✅ Valid JSON</span>
                             ) : (
                                 <span className="status-invalid">❌ Invalid JSON</span>
@@ -120,20 +172,23 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                 </div>
 
                 <div className="json-editor-content">
-                    {viewMode === 'formatted' && isValid ? (
-                        // ✅ Vista preview (solo lettura)
+                    {isLoading ? (
+                        <div className="json-loading">
+                            <div className="loading-spinner">⏳ Loading JSON from server...</div>
+                        </div>
+                    ) : viewMode === 'formatted' && isValid ? (
                         <div className="json-viewer">
                             <JsonTreeView data={JSON.parse(jsonText)} />
                         </div>
                     ) : (
-                        // ✅ Vista editor (modificabile)
                         <div className="json-raw-editor">
                             <textarea
                                 className={`json-editor-textarea ${!isValid ? 'json-editor-textarea-error' : ''}`}
                                 value={jsonText}
                                 onChange={handleJsonChange}
-                                placeholder="Enter JSON here..."
+                                placeholder="Loading JSON from server..."
                                 spellCheck={false}
+                                disabled={isLoading}
                             />
                         </div>
                     )}
@@ -154,15 +209,16 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                         <button 
                             className="json-editor-btn json-editor-btn-secondary"
                             onClick={onClose}
+                            disabled={isLoading}
                         >
                             Cancel
                         </button>
                         <button 
                             className="json-editor-btn json-editor-btn-primary"
                             onClick={handleSave}
-                            disabled={!isValid}
+                            disabled={!isValid || isLoading}
                         >
-                            Save Changes
+                            {isLoading ? "⏳ Saving..." : "💾 Save Changes"}
                         </button>
                     </div>
                 </div>
@@ -171,7 +227,7 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
     );
 };
 
-// ✅ Componente Tree View semplificato
+// ✅ JsonTreeView rimane IDENTICO al file originale
 const JsonTreeView: React.FC<{ data: any; level?: number }> = ({ data, level = 0 }) => {
     const [collapsed, setCollapsed] = useState<{[key: string]: boolean}>({});
     

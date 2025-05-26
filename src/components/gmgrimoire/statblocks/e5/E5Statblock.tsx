@@ -7,62 +7,17 @@ import { E5StatblockValues } from "./E5StatblockValues.tsx";
 import { E5StatblockContent } from "./E5StatblockContent.tsx";
 import Tippy from "@tippyjs/react";
 import { JsonEditor } from "../../../JsonEditor.tsx";
-import { updateTokenSheet, getTtrpgProxyUrl } from "../../../../helper/helpers.ts";
-import { uploadJsonFile } from "../../../../helper/uploadFunc.ts";
+import { getTtrpgProxyUrl } from "../../../../helper/helpers.ts";
 import { useMetadataContext } from "../../../../context/MetadataContext.ts";
 import { useShallow } from "zustand/react/shallow";
 
 const E5StatBlock = () => {
-    const { statblock, itemId } = useE5StatblockContext();
+    const { statblock } = useE5StatblockContext();
     const [showJsonEditor, setShowJsonEditor] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
     const room = useMetadataContext(useShallow((state) => state.room));
-
-    const handleSaveJson = async (editedJson: any) => {
-        setIsSaving(true);
-        
-        try {
-            if (!editedJson.slug) {
-                throw new Error("Il JSON deve contenere un campo 'slug'");
-            }
-
-            if (itemId) {
-                await updateTokenSheet(editedJson, itemId, "e5");
-                console.log("✅ Local update");
-            }
-
-            const proxyUrl = getTtrpgProxyUrl(room || undefined);
-            if (proxyUrl && proxyUrl !== "https://nope") {
-                
-                if (typeof editedJson.source === "string" && !editedJson.source.endsWith(" - NoTA")) {
-                    editedJson.source = editedJson.source + " - NoTA";
-                }
-
-                const jsonBlob = new Blob([JSON.stringify(editedJson, null, 2)], {
-                    type: "application/json"
-                });
-                
-                const jsonFile = new File([jsonBlob], `${editedJson.slug}.json`, {
-                    type: "application/json"
-                });
-
-                await uploadJsonFile(jsonFile, proxyUrl);
-                console.log("✅ Re-upload al proxy completato");
-            }
-
-            alert("✅ Statblock aggiornato con successo!");
-            
-        } catch (error) {
-            console.error("❌ Errore durante il salvataggio:", error);
-            if (error instanceof Error) {
-                alert(`❌ Errore: ${error.message}`);
-            } else {
-                alert("❌ Errore sconosciuto");
-            }
-        } finally {
-            setIsSaving(false);
-        }
-    };
+    
+    const tokenSlug = statblock?.slug;
+    const proxyUrl = getTtrpgProxyUrl(room || undefined);
 
     return (
         <div className={styles.statblock}>
@@ -83,9 +38,8 @@ const E5StatBlock = () => {
                         className="edit-json-btn"
                         onClick={() => setShowJsonEditor(true)}
                         title="Edit statblock JSON"
-                        disabled={isSaving}
                     >
-                        {isSaving ? "💾" : "⚙️"}
+                        ⚙️
                     </button>
                 </div>
             </div>
@@ -95,9 +49,13 @@ const E5StatBlock = () => {
             <JsonEditor
                 isOpen={showJsonEditor}
                 onClose={() => setShowJsonEditor(false)}
-                jsonData={statblock}
-                onSave={handleSaveJson}
-                title={`Edit ${statblock.name} JSON`}
+                slug={tokenSlug || ""}
+                proxyUrl={proxyUrl || ""}
+                onSave={(editedJson) => {
+                    // ✅ Callback opzionale per notifiche o refresh
+                    console.log("JSON salvato:", editedJson);
+                }}
+                title="Edit Statblock JSON"
             />
         </div>
     );

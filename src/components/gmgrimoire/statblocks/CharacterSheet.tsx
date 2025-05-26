@@ -151,30 +151,28 @@ export const CharacterSheet = (props: { itemId: string }) => {
         try {
             const proxyUrl = getTtrpgProxyUrl(room || undefined);
             if (!proxyUrl || proxyUrl === "https://nope") {
-                alert("Please configure your proxy URL in settings first.");
+                console.log("Please configure your proxy URL in settings first.");
                 return;
             }
         
             if (file.type !== "application/json") {
-                //alert("Devi caricare un file JSON valido!");
+                console.log("Devi caricare un file JSON valido!");
                 return;
             }
         
             try {
                 await uploadJsonFile(file, proxyUrl);
-                //alert("Upload completato!");
+                console.log("Upload completato!");
             } catch (error: any) {
-                //alert("Errore durante l'upload: " + error.message);
+                console.log("Errore durante l'upload: " + error.message);
             }
         
             event.target.value = "";
         } catch (error) {
             console.error("Errore nel handleFileChange:", error);
         }
-    }; // ✅ Aggiungi questa parentesi graffa di chiusura
-
-// ...resto del codice...
-
+    };
+    
     useEffect(() => {
         if (item) {
             initData();
