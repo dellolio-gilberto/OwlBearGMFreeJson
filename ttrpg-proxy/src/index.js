@@ -84,7 +84,6 @@ export default {  async fetch(request, env, ctx) {
   {
     for (let spell of statblock.spells) {
       let spellDBFetch = await env.EXTRA_SPELLS.get(spell);
-      console.log("FETCH", spellDBFetch)
       if (spellDBFetch) {
         statblock.spells[statblock.spells.indexOf(spell)] = JSON.parse(spellDBFetch);
       }
@@ -95,27 +94,19 @@ export default {  async fetch(request, env, ctx) {
           // additional headers can be added here
         });
         spellDBFetch = await apiResponse.json();
-        console.log("API FETCH", spellDBFetch)
-        console.log("API RESPONSE", apiResponse)
         if (spellDBFetch.detail === "Slug null not found in database") {
           spellDBFetch = null_spell;
         }
         statblock.spells[statblock.spells.indexOf(spell)] = spellDBFetch;
       }
     }
-    console.log("STATBLOCK", statblock)
-    console.log("SPELLS", statblock.spells)
     return statblock;
   }
 
   async function resolveItems(statblock)
   {
-    console.log("EQUIPMENT", statblock.equipment)
     for (let equipment of statblock.equipment) {
-      console.log("EQUIPMENT 2", equipment)
-      console.log("EQUIPMENT ITEM", equipment.item)
       let itemDBFetch = await env.EXTRA_ITEMS.get(equipment.item);
-      console.log("FETCH", itemDBFetch)
       if (itemDBFetch) {
         statblock.equipment[statblock.equipment.indexOf(equipment)].item = JSON.parse(itemDBFetch);
       }
@@ -126,16 +117,12 @@ export default {  async fetch(request, env, ctx) {
           // additional headers can be added here
         });
         itemDBFetch = await apiResponse.json();
-        console.log("API FETCH", itemDBFetch)
-        console.log("API RESPONSE", apiResponse)
         if (itemDBFetch.detail === "Slug null not found in database") {
           itemDBFetch = null_item;
         }
         statblock.equipment[statblock.equipment.indexOf(equipment)].item = itemDBFetch;
       }
     }
-    console.log("STATBLOCK", statblock)
-    console.log("SPELLS", statblock.spells)
     return statblock;
   }
 
@@ -156,11 +143,58 @@ export default {  async fetch(request, env, ctx) {
     return statblock;
   }
 
+  function validateAndClassify(json)
+  {
+    const templates = {
+    Statblock: [
+      "name", "type", "alignment",
+      "armor_class.value", "hp.value", "speed.walk",
+      "stats.strength", "stats.dexterity", "stats.constitution",
+      "saving_throws", "skills", "damage_immunities",
+      "senses", "languages", "challenge_rating", "actions", "slug"
+    ],
+    Spell: [
+      "name", "id", "slug", "desc", "level", "school", "range",
+      "verbal", "somatic", "material", "duration", "casting_time"
+    ],
+    Item: [
+      "name", "id", "slug", "type", "description", "rarity", "cost",
+      "consumable", "sentient", "can_equip", "requires_attuning"
+    ]
+    }
+    for (const [type, fields] of Object.entries(templates)) {
+      const missing = fields.filter(field => {
+        const keys = field.split(".");
+        let value = json;
+        for (const key of keys) {
+          if (value && typeof value === "object" && key in value) {
+            value = value[key];
+          } else {
+            return true; // Field is missing
+          }
+        }
+        return false; // Field exists
+      }
+      );
+    if (missing.length === 0) {
+        return type; // All fields exist for this type
+      }
+    };
+    return "Invalid";
+    }
 
   if (request.method === "POST") {
       try {
         const data = await request.json();
-        await env.EXTRA_STATBLOCKS.put(data.slug, JSON.stringify(data));
+        const dataType = validateAndClassify(data);
+        if (dataType === "Statblock")
+          await env.EXTRA_STATBLOCKS.put(data.slug, JSON.stringify(data));
+        else if (dataType === "Spell")
+          await env.EXTRA_SPELLS.put(data.id, JSON.stringify(data));
+        else if (dataType === "Item")
+          await env.EXTRA_ITEMS.put(data.id, JSON.stringify(data));
+        else
+          throw new Error("Invalid JSON");
         return new Response(JSON.stringify({ success: true }), {
           status: 200,
           headers: {
@@ -203,9 +237,7 @@ export default {  async fetch(request, env, ctx) {
       statblock = JSON.parse(statblock);
       if (searchedName && statblock.name.match(searchRegex))
       {
-        console.log("MATCH", statblock)
         statblock = await resolveStatblock(statblock);
-        console.log("RESOLVED", statblock)
         searchResults.unshift(statblock);
       }
     }
