@@ -100,6 +100,7 @@ export type RoomMetadata = {
     ttrpgProxyUrl?: string;
     disableHpBar?: boolean;
     disableColorGradient?: boolean;
+    azgaarMapData?: string;
 };
 
 export type AttachmentMetadata = {

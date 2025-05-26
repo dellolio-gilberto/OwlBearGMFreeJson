@@ -85,3 +85,17 @@ export const quickReferenceModal: Modal = {
     height: 800,
     width: 1200,
 };
+
+export const mapAzgaar: Modal = {
+    id: "mapAzgaar.modal",
+    url: "https://azgaar.github.io/Fantasy-Map-Generator/",
+    height: 800,
+    width: 1200,
+};
+
+export const AlmanacTable: Modal = {
+    id: "Almanac.modal",
+    url: "https://tabletop-almanac.com",
+    height: 800,
+    width: 1200,
+};

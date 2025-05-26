@@ -6,6 +6,8 @@ import {
     statblockPopover,
     statblockPopoverId,
     quickReferenceModal,
+    mapAzgaar,
+    AlmanacTable,
 } from "../../../helper/variables.ts";
 import { usePlayerContext } from "../../../context/PlayerContext.ts";
 import { useMetadataContext } from "../../../context/MetadataContext.ts";
@@ -69,10 +71,23 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
         <div className={"help-buttons"}>
             <Tippy content={"Open Tabletop Almanac to create your own statblocks"}>
                 <a
-                    href={"https://tabletop-almanac.com"}
+                    //href={"https://tabletop-almanac.com"}
                     className={"tabletop-almanac-button top-button link"}
+                    onClick={async () => {
+                        let width = 1200;
+                        let height = 800;
+                        try {
+                            width = await OBR.viewport.getWidth();
+                            height = await OBR.viewport.getHeight();
+                        } catch {}
+                        await OBR.modal.open({
+                            ...AlmanacTable,
+                            width: Math.min(1200, width * 0.9),
+                            height: Math.min(800, height * 0.9),
+                        });
+                    }}
                     title={"Tabletop Almanac"}
-                    target={"_blank"}
+                    //target={"_blank"}
                 >
                     <TabletopAlmanacSvg />
                 </a>
@@ -157,6 +172,27 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
                           <path d="M19.2353 6H21.5C21.7761 6 22 6.22386 22 6.5V19.539C22 19.9436 21.5233 20.2124 21.1535 20.0481C20.3584 19.6948 19.0315 19.2632 17.2941 19.2632C14.3529 19.2632 12 21 12 21C12 21 9.64706 19.2632 6.70588 19.2632C4.96845 19.2632 3.64156 19.6948 2.84647 20.0481C2.47668 20.2124 2 19.9436 2 19.539V6.5C2 6.22386 2.22386 6 2.5 6H4.76471" stroke="#000000" stroke-linejoin="round"></path>
                         </g>
                     </svg>
+                 </button>
+            </Tippy>
+            <Tippy content={"Azgaar's Fantasy Map Generator"}>
+                <button
+                    className={"external-page-button top-button"}
+                    onClick={async () => {
+                        let width = 1200;
+                        let height = 800;
+                        try {
+                            width = await OBR.viewport.getWidth();
+                            height = await OBR.viewport.getHeight();
+                        } catch {}
+                        await OBR.modal.open({
+                            ...mapAzgaar,
+                            width: Math.min(1200, width * 0.9),
+                            height: Math.min(800, height * 0.9),
+                        });
+                    }}
+                    title={"Azgaar's Map"}
+                >
+                    <svg fill="#000000" viewBox="0 -2.71 29.046 29.046" id="_12_-_Maps" data-name="12 - Maps" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="Path_236" data-name="Path 236" d="M19.663,8.319a1,1,0,0,0-.606.92V26.818a1,1,0,0,0,1.394.919l8.284-3.55a2.951,2.951,0,0,0,1.788-2.712V8.14A2.951,2.951,0,0,0,26.41,5.428L19.663,8.319ZM21.057,9.9,27.2,7.266a.95.95,0,0,1,1.325.874V21.475a.952.952,0,0,1-.576.874L21.057,25.3V9.9Z" transform="translate(-1.477 -4.182)" fill-rule="evenodd"></path> <path id="Path_237" data-name="Path 237" d="M11.973,4.182h-.108l-.017,0h-.023l-.014,0-.023,0-.015,0-.015,0-.032.007-.018,0-.057.015-.051.017-.01,0-.015.007-.026.01L3.265,7.813a2.951,2.951,0,0,0-1.788,2.712V23.86A2.951,2.951,0,0,0,5.59,26.572l6.321-2.709,7.7,3.85a1,1,0,0,0,1.447-.9V9.164l-.006-.059V9.1l0-.015,0-.021,0-.016,0-.016,0-.015-.013-.052-.006-.02L21,8.922l0-.01L21,8.9l0-.012,0-.008-.011-.026-.007-.017-.006-.013-.015-.032-.009-.017-.006-.011-.007-.014-.015-.024-.008-.013a.452.452,0,0,0-.034-.051l-.023-.033L20.825,8.6a.876.876,0,0,0-.089-.094l-.023-.021-.033-.027a.64.64,0,0,0-.052-.039L20.593,8.4l-.019-.012-.008-.005-.006,0c-.018-.011-.037-.021-.056-.031L12.39,4.287l-.054-.025,0,0-.015-.005-.027-.011-.01,0-.008,0-.014,0-.02-.007-.015,0-.012,0-.011,0-.014,0-.022-.005-.015,0-.016,0L12.1,4.195l-.019,0-.058-.007-.052,0Zm.97,17.961L19.057,25.2V9.857L12.943,6.8V22.143Zm-2-15.445L4.053,9.651a.952.952,0,0,0-.576.874V23.86a.95.95,0,0,0,1.325.874L10.943,22.1V6.7Z" transform="translate(-1.477 -4.182)" fill-rule="evenodd"></path> </g></svg>
                  </button>
             </Tippy>
             {playerContext.role == "GM" ? (
