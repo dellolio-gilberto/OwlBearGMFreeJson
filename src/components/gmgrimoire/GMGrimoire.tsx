@@ -311,21 +311,22 @@ const Content = () => {
                                     ></button>
                                 </Tippy>
                                 <Tippy content={"Initiative Order"}>
-                                    <button
-                                        className={`sort-button button ${sortInitiative == SORT.DESC ? "reverse" : ""}`}
-                                        disabled={!enableAutoSort}
-                                        title={"Order By Initiative"}
-                                        onClick={async () => {
-                                            const newOrder = !isUndefined(sortInitiative)
-                                                ? modulo(sortInitiative + 1, 2)
-                                                : SORT.DESC;
-                                            await updateSceneMetadata(scene, {
-                                                sortMethod: newOrder,
-                                            });
-                                        }}
-                                    >
-                                        <ArrowSvg />
-                                    </button>
+                                    <div className="initiative-div">
+                                        <button
+                                            className={`sort-button button ${sortInitiative == SORT.DESC ? "reverse" : ""}`}
+                                            disabled={!enableAutoSort}
+                                            onClick={async () => {
+                                                const newOrder = !isUndefined(sortInitiative)
+                                                    ? modulo(sortInitiative + 1, 2)
+                                                    : SORT.DESC;
+                                                await updateSceneMetadata(scene, {
+                                                    sortMethod: newOrder,
+                                                });
+                                            }}
+                                        >
+                                            <ArrowSvg />
+                                        </button>
+                                    </div>
                                 </Tippy>
                             </span>
                             <BattleRounds />
@@ -336,7 +337,7 @@ const Content = () => {
                     {playerContext.role === "GM" ? (
                         <>
                             <div className={"gmg-name"}>
-                                <span>GM's Grimoire Custom</span>
+                                <span>GM's Grimoire Plus</span>
                                 <span className={"small"}>{version}</span>
                             </div>
                             <DragDropContext onDragEnd={onDragEnd}>

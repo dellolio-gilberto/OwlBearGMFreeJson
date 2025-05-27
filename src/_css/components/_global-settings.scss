@@ -70,6 +70,20 @@
                 background-color: transparent;
             }
         }
+
+        .custom-button-settings-wrapper {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.1s ease;
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .custom-button-settings-wrapper.open {
+            max-height: 50px;
+            transition: max-height 0.3s ease, opacity 0.1s ease;
+            opacity: 1;
+        }
+
     }
 
     .settings-context {

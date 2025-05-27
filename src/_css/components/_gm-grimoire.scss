@@ -72,11 +72,16 @@
         .initiative-order {
             display: flex;
             gap: 0.5ch;
+            max-height: 20px;;
 
             .initiative-icon {
                 fill: green;
             }
-
+            .initiative-div {
+                position: relative;
+                padding: 0;
+                margin: 0;
+            }
             .sort-button {
                 position: relative;
                 padding-inline: 0;

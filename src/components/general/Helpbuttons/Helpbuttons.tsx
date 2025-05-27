@@ -86,7 +86,6 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
                             height: Math.min(800, height * 0.9),
                         });
                     }}
-                    title={"Tabletop Almanac"}
                     //target={"_blank"}
                 >
                     <TabletopAlmanacSvg />
@@ -141,7 +140,6 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
                             });
                         }
                     }}
-                    title={"Statblocks"}
                 >
                     <StatblockSvg />
                 </button>
@@ -162,7 +160,6 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
                             height: Math.min(800, height * 0.9),
                         });
                     }}
-                    title={"Quick Reference"}
                 >
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -190,7 +187,6 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
                             height: Math.min(800, height * 0.9),
                         });
                     }}
-                    title={"Azgaar's Map"}
                 >
                     <svg fill="#000000" viewBox="0 -2.71 29.046 29.046" id="_12_-_Maps" data-name="12 - Maps" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="Path_236" data-name="Path 236" d="M19.663,8.319a1,1,0,0,0-.606.92V26.818a1,1,0,0,0,1.394.919l8.284-3.55a2.951,2.951,0,0,0,1.788-2.712V8.14A2.951,2.951,0,0,0,26.41,5.428L19.663,8.319ZM21.057,9.9,27.2,7.266a.95.95,0,0,1,1.325.874V21.475a.952.952,0,0,1-.576.874L21.057,25.3V9.9Z" transform="translate(-1.477 -4.182)" fill-rule="evenodd"></path> <path id="Path_237" data-name="Path 237" d="M11.973,4.182h-.108l-.017,0h-.023l-.014,0-.023,0-.015,0-.015,0-.032.007-.018,0-.057.015-.051.017-.01,0-.015.007-.026.01L3.265,7.813a2.951,2.951,0,0,0-1.788,2.712V23.86A2.951,2.951,0,0,0,5.59,26.572l6.321-2.709,7.7,3.85a1,1,0,0,0,1.447-.9V9.164l-.006-.059V9.1l0-.015,0-.021,0-.016,0-.016,0-.015-.013-.052-.006-.02L21,8.922l0-.01L21,8.9l0-.012,0-.008-.011-.026-.007-.017-.006-.013-.015-.032-.009-.017-.006-.011-.007-.014-.015-.024-.008-.013a.452.452,0,0,0-.034-.051l-.023-.033L20.825,8.6a.876.876,0,0,0-.089-.094l-.023-.021-.033-.027a.64.64,0,0,0-.052-.039L20.593,8.4l-.019-.012-.008-.005-.006,0c-.018-.011-.037-.021-.056-.031L12.39,4.287l-.054-.025,0,0-.015-.005-.027-.011-.01,0-.008,0-.014,0-.02-.007-.015,0-.012,0-.011,0-.014,0-.022-.005-.015,0-.016,0L12.1,4.195l-.019,0-.058-.007-.052,0Zm.97,17.961L19.057,25.2V9.857L12.943,6.8V22.143Zm-2-15.445L4.053,9.651a.952.952,0,0,0-.576.874V23.86a.95.95,0,0,0,1.325.874L10.943,22.1V6.7Z" transform="translate(-1.477 -4.182)" fill-rule="evenodd"></path> </g></svg>
                  </button>
@@ -215,9 +211,8 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
                                 height: Math.min(800, height * 0.9),
                             });
                         }}
-                        title={room?.customButton?.label || "Custom"}
                     >
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M7.9175 17.8068L15.8084 10.2535C16.7558 9.34668 16.7558 7.87637 15.8084 6.96951C14.861 6.06265 13.325 6.06265 12.3776 6.96951L4.54387 14.4681C2.74382 16.1911 2.74382 18.9847 4.54387 20.7077C6.34391 22.4308 9.26237 22.4308 11.0624 20.7077L19.0105 13.0997C21.6632 10.5605 21.6632 6.44362 19.0105 3.90441C16.3578 1.3652 12.0569 1.3652 9.40419 3.90441L3 10.0346" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path> </g></svg>  
+                        <svg width="256px" height="256px" viewBox="0 0 16.00 16.00" xmlns="http://www.w3.org/2000/svg" fill="#000000" class="bi bi-pin-angle-fill" stroke="#000000" stroke-width="0.00016"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"></path> </g></svg>
                     </button>
                 </Tippy>
             )}
@@ -239,7 +234,6 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
                                 height: Math.min(800, height * 0.9),
                             });
                         }}
-                        title={"Settings"}
                     >
                         <SettingsSvg />
                     </button>
@@ -285,25 +279,26 @@ export const Helpbuttons = (props: HelpButtonsProps) => {
             >
                 i
             </button>
-            <button
-                className={"help-button top-button"}
-                onClick={async () => {
-                    let width = 800;
-                    let height = 900;
-                    try {
-                        width = await OBR.viewport.getWidth();
-                        height = await OBR.viewport.getHeight();
-                    } catch {}
-                    await OBR.modal.open({
-                        ...helpModal,
-                        width: Math.min(700, width * 0.9),
-                        height: Math.min(800, height * 0.9),
-                    });
-                }}
-                title={"Help"}
-            >
-                ?
-            </button>
+            <Tippy content={"Help"}>
+                <button
+                    className={"help-button top-button"}
+                    onClick={async () => {
+                        let width = 800;
+                        let height = 900;
+                        try {
+                            width = await OBR.viewport.getWidth();
+                            height = await OBR.viewport.getHeight();
+                        } catch {}
+                        await OBR.modal.open({
+                            ...helpModal,
+                            width: Math.min(700, width * 0.9),
+                            height: Math.min(800, height * 0.9),
+                        });
+                    }}
+                >
+                    ?
+                </button>
+            </Tippy>
         </div>
     );
 };
