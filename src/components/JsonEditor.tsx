@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ItemSearchModal } from './ItemSearchModal';
+import { SpellSearchModal } from './SpellSearchModal';
 
 interface JsonEditorProps {
     isOpen: boolean;
@@ -26,6 +27,31 @@ interface EquipmentItem {
     count: number;
 }
 
+// interface Spell {
+//     id: string;
+//     name: string;
+//     level?: number;
+//     school?: string;
+//     description?: string;
+// }
+
+interface Spell {
+    id: string;
+    name: string;
+    level?: number;
+    school?: {
+        name: string;
+    };
+    classes?: Array<{
+        name: string;
+    }>;
+    description?: string;
+    slug?: string;
+    range?: string;
+    duration?: string;
+    casting_time?: string;
+}
+
 export const JsonEditor: React.FC<JsonEditorProps> = ({
     isOpen,
     onClose,
@@ -40,6 +66,7 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
     const [viewMode, setViewMode] = useState<'formatted' | 'raw'>('raw');
     const [isLoading, setIsLoading] = useState(false);
     const [showItemSearch, setShowItemSearch] = useState(false);
+    const [showSpellSearch, setShowSpellSearch] = useState(false);
 
     // ✅ CAMBIATO: Fetch JSON dall'endpoint invece di usare jsonData
     useEffect(() => {
@@ -165,6 +192,39 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
         }
     };
 
+    const hasSpells = () => {
+        try {
+            const data = JSON.parse(jsonText);
+            return Array.isArray(data.spells);
+        } catch {
+            return false;
+        }
+    };
+
+    const addSpellToList = (spell: Spell) => {
+        try {
+            const data = JSON.parse(jsonText);
+            if (!Array.isArray(data.spells)) {
+                data.spells = [];
+            }
+
+            // ✅ Controlla se lo spell non è già presente
+            if (!data.spells.includes(spell.id)) {
+                data.spells.push(spell.id);
+                setJsonText(JSON.stringify(data, null, 2));
+                console.log("✅ Spell aggiunto:", spell.name);
+            } else {
+                console.log("⚠️ Spell già presente:", spell.name);
+            }
+            
+            setShowSpellSearch(false);
+            
+        } catch (error) {
+            setError("Failed to add spell to list");
+            console.error("❌ Errore aggiunta spell:", error);
+        }
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -222,6 +282,17 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                             </button>
                         )}
 
+                        {hasSpells() && (
+                            <button 
+                                className="json-editor-btn json-editor-btn-secondary"
+                                onClick={() => setShowSpellSearch(true)}
+                                disabled={!isValid || isLoading}
+                                title="Add spell to spell list"
+                            >
+                                🪄 Add Spell
+                            </button>
+                        )}
+
                         <span className="json-status">
                             {isLoading ? (
                                 <span className="status-loading">⏳ Loading...</span>
@@ -244,6 +315,14 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                         proxyUrl={proxyUrl}
                         onClose={() => setShowItemSearch(false)}
                         onSelectItem={addItemToEquipment}
+                    />
+                )}
+
+                {showSpellSearch && (
+                    <SpellSearchModal
+                        proxyUrl={proxyUrl}
+                        onClose={() => setShowSpellSearch(false)}
+                        onSelectSpell={addSpellToList}
                     />
                 )}
 

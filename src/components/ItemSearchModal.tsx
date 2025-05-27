@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./ItemSearch.css";
+//import "./ItemSearch.css";
 
 interface Item {
     id: number;
