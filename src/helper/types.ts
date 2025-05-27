@@ -101,6 +101,7 @@ export type RoomMetadata = {
     disableHpBar?: boolean;
     disableColorGradient?: boolean;
     azgaarMapData?: string;
+    customButton?: CustomButton;
 };
 
 export type AttachmentMetadata = {
@@ -149,3 +150,9 @@ export type BestMatch = {
     statblock: InitialStatblockData;
 };
 
+export type CustomButton = {
+    enabled: boolean;
+    label?: string;    
+    url?: string;        
+    tooltip?: string;  
+};

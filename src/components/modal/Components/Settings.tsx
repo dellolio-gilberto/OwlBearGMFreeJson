@@ -12,10 +12,16 @@ import { useShallow } from "zustand/react/shallow";
 import { updateList } from "../../../helper/obrHelper.ts";
 import { GMGMetadata } from "../../../helper/types.ts";
 import { useState } from "react";
+import { CustomButton } from "....//../helper/types.ts";
 
 export const Settings = () => {
     const tokens = useTokenListContext(useShallow((state) => state.tokens));
     const [room, scene] = useMetadataContext(useShallow((state) => [state.room, state.scene]));
+
+    const [customButtonEnabled, setCustomButtonEnabled] = useState(room?.customButton?.enabled || false);
+    const [customButtonLabel, setCustomButtonLabel] = useState(room?.customButton?.label || "");
+    const [customButtonUrl, setCustomButtonUrl] = useState(room?.customButton?.url || "");
+    const [customButtonTooltip, setCustomButtonTooltip] = useState(room?.customButton?.tooltip || "");
 
     const [proxyUrl, setProxyUrl] = useState(room?.ttrpgProxyUrl || "");
     const handleOffsetChange = (value: number) => {
@@ -27,6 +33,23 @@ export const Settings = () => {
         updateAcOffset({ x: x, y: y });
         updateRoomMetadata(room, { acOffset: { x: x, y: y } });
     };
+
+    const updateCustomButtonField = (field: keyof CustomButton, value: string | boolean) => {
+        const currentButton: CustomButton = {
+            enabled: room?.customButton?.enabled || false,
+            label: room?.customButton?.label || "",
+            url: room?.customButton?.url || "",
+            tooltip: room?.customButton?.tooltip || ""
+        };
+        
+        updateRoomMetadata(room, { 
+            customButton: {
+                ...currentButton,
+                [field]: value
+            }
+        });
+    };
+
 
     return (
         <>
@@ -80,6 +103,65 @@ export const Settings = () => {
                             placeholder="https://your-proxy-url.com"
                         />
                     </div>
+                    <div className="setting-row">
+                        <label className="setting-label">
+                            <input
+                                type="checkbox"
+                                checked={customButtonEnabled}
+                                onChange={(e) => {
+                                    setCustomButtonEnabled(e.target.checked);
+                                    updateCustomButtonField('enabled', e.target.checked);
+                                }}
+                            />
+                            Enable Custom Button
+                        </label>
+                    </div>
+                            
+                    {customButtonEnabled && (
+                        <>
+                            <div className="setting-row">
+                                <label className="setting-label">
+                                    Button Label:
+                                    <input
+                                        type="text"
+                                        value={customButtonLabel}
+                                        onChange={(e) => setCustomButtonLabel(e.target.value)}
+                                        onBlur={(e) => updateCustomButtonField('label', e.target.value)}
+                                        placeholder="e.g., My Tool"
+                                        className="setting-input"
+                                    />
+                                </label>
+                            </div>
+                                    
+                            <div className="setting-row">
+                                <label className="setting-label">
+                                    URL:
+                                    <input
+                                        type="url"
+                                        value={customButtonUrl}
+                                        onChange={(e) => setCustomButtonUrl(e.target.value)}
+                                        onBlur={(e) => updateCustomButtonField('url', e.target.value)}
+                                        placeholder="https://example.com"
+                                        className="setting-input"
+                                    />
+                                </label>
+                            </div>
+                                    
+                            <div className="setting-row">
+                                <label className="setting-label">
+                                    Tooltip:
+                                    <input
+                                        type="text"
+                                        value={customButtonTooltip}
+                                        onChange={(e) => setCustomButtonTooltip(e.target.value)}
+                                        onBlur={(e) => updateCustomButtonField('tooltip', e.target.value)}
+                                        placeholder="Description for the button"
+                                        className="setting-input"
+                                    />
+                                </label>
+                            </div>
+                        </>
+                    )}
                     <div className={"hp-mode setting-group vertical"}>
                         <div>
                             HP Bar Segments:{" "}
