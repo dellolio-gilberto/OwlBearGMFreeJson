@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ItemSearchModal } from './ItemSearchModal';
 
 interface JsonEditorProps {
     isOpen: boolean;
@@ -7,6 +8,22 @@ interface JsonEditorProps {
     proxyUrl: string; // ✅ AGGIUNTO: il proxy URL
     onSave: (editedJson: any) => void;
     title?: string;
+}
+
+interface Item {
+    id: number;
+    name: string;
+    // Altri campi dell'item che ti servono
+}
+
+interface EquipmentItem {
+    item: number;
+    equipped: boolean;
+    proficient: boolean;
+    embedded: boolean;
+    loot: boolean;
+    attuned: boolean;
+    count: number;
 }
 
 export const JsonEditor: React.FC<JsonEditorProps> = ({
@@ -21,7 +38,8 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
     const [error, setError] = useState<string | null>(null);
     const [isValid, setIsValid] = useState(true);
     const [viewMode, setViewMode] = useState<'formatted' | 'raw'>('raw');
-    const [isLoading, setIsLoading] = useState(false); // ✅ AGGIUNTO: loading state
+    const [isLoading, setIsLoading] = useState(false);
+    const [showItemSearch, setShowItemSearch] = useState(false);
 
     // ✅ CAMBIATO: Fetch JSON dall'endpoint invece di usare jsonData
     useEffect(() => {
@@ -109,6 +127,44 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
         }
     };
 
+    // ✅ Aggiunge un item all'equipment
+    const addItemToEquipment = (item: Item) => {
+        try {
+            const data = JSON.parse(jsonText);
+            if (!Array.isArray(data.equipment)) {
+                data.equipment = [];
+            }
+
+            const newEquipmentItem: EquipmentItem = {
+                item: item.id,
+                equipped: false,
+                proficient: false,
+                embedded: false,
+                loot: false,
+                attuned: false,
+                count: 1
+            };
+
+            data.equipment.push(newEquipmentItem);
+            setJsonText(JSON.stringify(data, null, 2));
+            setShowItemSearch(false);
+            
+            console.log("✅ Item aggiunto:", item.name);
+        } catch (error) {
+            setError("Failed to add item to equipment");
+            console.error("❌ Errore aggiunta item:", error);
+        }
+    };
+
+    const hasEquipment = () => {
+        try {
+            const data = JSON.parse(jsonText);
+            return Array.isArray(data.equipment);
+        } catch {
+            return false;
+        }
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -154,6 +210,18 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                         >
                             🎨 Format
                         </button>
+
+                        {hasEquipment() && (
+                            <button 
+                                className="json-editor-btn json-editor-btn-secondary"
+                                onClick={() => setShowItemSearch(true)}
+                                disabled={!isValid || isLoading}
+                                title="Add item to equipment"
+                            >
+                                ➕ Add Item
+                            </button>
+                        )}
+
                         <span className="json-status">
                             {isLoading ? (
                                 <span className="status-loading">⏳ Loading...</span>
@@ -170,6 +238,14 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                         </span>
                     )}
                 </div>
+
+                {showItemSearch && (
+                    <ItemSearchModal
+                        proxyUrl={proxyUrl}
+                        onClose={() => setShowItemSearch(false)}
+                        onSelectItem={addItemToEquipment}
+                    />
+                )}
 
                 <div className="json-editor-content">
                     {isLoading ? (
