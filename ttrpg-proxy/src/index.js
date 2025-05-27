@@ -1,7 +1,7 @@
 export default {  async fetch(request, env, ctx) {
   const url = new URL(request.url);
   const apiPath = url.pathname;
-  const targetUrl = `https://api.tabletop-almanac.com/api/v1${apiPath}${url.search}`;
+  let targetUrl = `https://api.tabletop-almanac.com/api/v1${apiPath}${url.search}`;
   const origin = request.headers.get("Origin");
   const auth = request.headers.get("Authorization");
   const headers = {
@@ -197,9 +197,15 @@ export default {  async fetch(request, env, ctx) {
     try {
       const DATABASE = type === "Statblock" ? env.EXTRA_STATBLOCKS : type === "Spell" ? env.EXTRA_SPELLS : env.EXTRA_ITEMS;
       let DBList = await DATABASE.list();
-      const searchedName = new URLSearchParams(url.search).get("search_string");
+      const urlParams = new URLSearchParams(url.search);
+      const searchedName = urlParams.get("search_string");
       const searchRegex = new RegExp(String.raw`\b${searchedName}`, "i");
-      const apiResponse = await fetch(targetUrl.replace("/search", ""), {
+      if (type === "Item")
+        {
+          targetUrl = targetUrl.replace("/search", "");
+          urlParams.set('take', '99999');
+        }
+      const apiResponse = await fetch(targetUrl, {
         headers: headers,
         // additional headers can be added here
       });
@@ -207,21 +213,24 @@ export default {  async fetch(request, env, ctx) {
       const apiTypedArray = new Uint8Array(apiSearchBuffer);
       const decoder = new TextDecoder();
       let searchResults = JSON.parse(decoder.decode(apiTypedArray));
-
+      if (type === "Item")
+        searchResults = searchResults.filter(item => item.name.match(searchRegex));
       for (const key in DBList.keys) {
         let object = await DATABASE.get(DBList.keys[key].name);
         object = JSON.parse(object);
         if (object.name.match(searchRegex))
         {
-          console.log(`Found ${object.name} in ${type} database`);
           if (type === "Statblock")
             object = await resolveStatblock(object);
           searchResults.pop();
           searchResults.unshift(object);
         }
       }
+      if(searchedName === null || searchedName === "")
+        console.log(`${type} search completed with ${searchResults.length} results.`);
+      else
+        console.log(`${type} search completed for ${searchedName} with ${searchResults.length} results.`);
       searchResults = JSON.stringify(searchResults);
-      console.log(`Search completed for ${searchedName} with ${searchResults.length} results.`);
       return new Response(searchResults, {
         status: 200,
         headers: headers
