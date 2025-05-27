@@ -197,24 +197,27 @@ export default {  async fetch(request, env, ctx) {
     try {
       const DATABASE = type === "Statblock" ? env.EXTRA_STATBLOCKS : type === "Spell" ? env.EXTRA_SPELLS : env.EXTRA_ITEMS;
       let DBList = await DATABASE.list();
+      let itemSkip = 0;
       const urlParams = new URLSearchParams(url.search);
       const searchedName = urlParams.get("search_string");
+      let take = urlParams.get("take");
       const searchRegex = new RegExp(String.raw`\b${searchedName}`, "i");
       if (type === "Item")
         {
           targetUrl = targetUrl.replace("/search", "");
           urlParams.set('take', '99999');
+          url.search = urlParams.toString();
+          targetUrl.replace(/\?.*/, "");
+          targetUrl += url.search;
+          itemSkip = urlParams.get('skip');
         }
-      const apiResponse = await fetch(targetUrl, {
-        headers: headers,
-        // additional headers can be added here
-      });
+      const apiResponse = await fetch(targetUrl, {headers: headers,});
       let apiSearchBuffer = await apiResponse.arrayBuffer();
       const apiTypedArray = new Uint8Array(apiSearchBuffer);
       const decoder = new TextDecoder();
       let searchResults = JSON.parse(decoder.decode(apiTypedArray));
       if (type === "Item")
-        searchResults = searchResults.filter(item => item.name.match(searchRegex));
+          searchResults = searchResults.filter(item => item.name.match(searchRegex));
       for (const key in DBList.keys) {
         let object = await DATABASE.get(DBList.keys[key].name);
         object = JSON.parse(object);
@@ -225,6 +228,13 @@ export default {  async fetch(request, env, ctx) {
           searchResults.pop();
           searchResults.unshift(object);
         }
+      }
+      if (type === "Item")
+      {
+        for (let i = 0; i < itemSkip; i++)
+          searchResults.shift();
+        if (searchResults.length > take)
+          searchResults = searchResults.slice(0, take);
       }
       if(searchedName === null || searchedName === "")
         console.log(`${type} search completed with ${searchResults.length} results.`);
