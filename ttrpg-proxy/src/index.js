@@ -4,7 +4,12 @@ export default {  async fetch(request, env, ctx) {
   const targetUrl = `https://api.tabletop-almanac.com/api/v1${apiPath}${url.search}`;
   const origin = request.headers.get("Origin");
   const auth = request.headers.get("Authorization");
-  const headers = {};
+  const headers = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": origin || "*",
+    "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+  };
   if (auth) {
     headers["Authorization"] = auth;
   }
@@ -95,6 +100,7 @@ export default {  async fetch(request, env, ctx) {
         });
         spellDBFetch = await apiResponse.json();
         if (spellDBFetch.detail === "Slug null not found in database") {
+          console.error(`404 - Spell ${spell} not found in database, using null spell.`);
           spellDBFetch = null_spell;
         }
         statblock.spells[statblock.spells.indexOf(spell)] = spellDBFetch;
@@ -122,6 +128,7 @@ export default {  async fetch(request, env, ctx) {
         });
         itemDBFetch = await apiResponse.json();
         if (itemDBFetch.detail === "Slug null not found in database") {
+          console.error(`404 - Item ${equipment.item} not found in database, using null item.`);
           itemDBFetch = null_item;
         }
       }
@@ -130,20 +137,18 @@ export default {  async fetch(request, env, ctx) {
     return statblock;
   }
 
-  if (request.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": origin || "*",
-        "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-      }
-    });
-  }
-
   async function resolveStatblock(statblock) {
-    statblock = await resolveSpells(statblock);
-    statblock = await resolveItems(statblock);
+    try {
+      statblock = await resolveSpells(statblock);
+      statblock = await resolveItems(statblock);
+    }
+    catch (error) {
+      console.error("Error resolving statblock:", error);
+      return {
+        ...statblock,
+        error: "Failed to resolve statblock data."
+      };
+    }
     return statblock;
   }
 
@@ -185,7 +190,83 @@ export default {  async fetch(request, env, ctx) {
       }
     };
     return "Invalid";
+  }
+
+  async function crossSearch(type)
+  {
+    try {
+      const DATABASE = type === "Statblock" ? env.EXTRA_STATBLOCKS : type === "Spell" ? env.EXTRA_SPELLS : env.EXTRA_ITEMS;
+      let DBList = await DATABASE.list();
+      const searchedName = new URLSearchParams(url.search).get("search_string");
+      const searchRegex = new RegExp(String.raw`\b${searchedName}`, "i");
+      const apiResponse = await fetch(targetUrl.replace("/search", ""), {
+        headers: headers,
+        // additional headers can be added here
+      });
+      let apiSearchBuffer = await apiResponse.arrayBuffer();
+      const apiTypedArray = new Uint8Array(apiSearchBuffer);
+      const decoder = new TextDecoder();
+      let searchResults = JSON.parse(decoder.decode(apiTypedArray));
+
+      for (const key in DBList.keys) {
+        let object = await DATABASE.get(DBList.keys[key].name);
+        object = JSON.parse(object);
+        if (object.name.match(searchRegex))
+        {
+          console.log(`Found ${object.name} in ${type} database`);
+          if (type === "Statblock")
+            object = await resolveStatblock(object);
+          searchResults.pop();
+          searchResults.unshift(object);
+        }
+      }
+      searchResults = JSON.stringify(searchResults);
+      console.log(`Search completed for ${searchedName} with ${searchResults.length} results.`);
+      return new Response(searchResults, {
+        status: 200,
+        headers: headers
+      });
+    } catch (error) {
+      console.error("Error during cross-search:", error);
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+        headers: headers
+      });
     }
+  }
+  
+async function editResponse(type){
+  try {
+    const requestedID = apiPath.replace(new RegExp(`^/edit/${type.toLowerCase()}/`), "");
+    const DATABASE = type === "Statblock" ? env.EXTRA_STATBLOCKS : type === "Spell" ? env.EXTRA_SPELLS : env.EXTRA_ITEMS;
+    let DBFetch = await DATABASE.get(requestedID);
+    if (DBFetch) {
+      let parsedData = JSON.parse(DBFetch);
+      return new Response(JSON.stringify(parsedData), {
+        status: 200,
+        headers: headers
+      });
+    }
+    return new Response(JSON.stringify({ error: "Not Found" }), {
+      status: 404,
+      headers: headers
+    });
+  } catch (error) {
+    console.error(`Error fetching ${type} data:`, error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: headers
+    });
+  }
+}
+
+  if (request.method === "OPTIONS") {
+    delete headers["Content-Type"];
+    return new Response(null, {
+      status: 204,
+      headers: headers
+    });
+  }
 
   if (request.method === "POST") {
       try {
@@ -201,140 +282,64 @@ export default {  async fetch(request, env, ctx) {
           throw new Error("Invalid JSON");
         return new Response(JSON.stringify({ success: true }), {
           status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": origin || "*",
-            "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization",
-          }
+          headers: headers
         });
       } catch (error) {
+        console.error("Error processing POST request:", error);
         return new Response(JSON.stringify({ error: error.message }), {
           status: 500,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": origin || "*",
-            "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization",
-          }
+          headers: headers
         });
       }
     }
 
   if (apiPath.startsWith("/e5/statblock/search")) {
-    let DB = await env.EXTRA_STATBLOCKS.list();
-    const searchedName = new URLSearchParams(url.search).get("search_string");
-    const searchRegex = new RegExp(String.raw`\b${searchedName}`, "i");
-    const apiResponse = await fetch(targetUrl, {
-      headers: headers,
-      // additional headers can be added here
-    });
-    const { status } = apiResponse;
-    const contentType = apiResponse.headers.get("content-type") || "";
-    let apiSearchBuffer = await apiResponse.arrayBuffer();
-    const apiTypedArray = new Uint8Array(apiSearchBuffer);
-    const decoder = new TextDecoder();
-    let searchResults = JSON.parse(decoder.decode(apiTypedArray));
-
-    for (const key in DB.keys) {
-      let statblock = await env.EXTRA_STATBLOCKS.get(DB.keys[key].name);
-      statblock = JSON.parse(statblock);
-      if (searchedName && statblock.name.match(searchRegex))
-      {
-        statblock = await resolveStatblock(statblock);
-        searchResults.unshift(statblock);
-      }
-    }
-    searchResults = JSON.stringify(searchResults);
-    return new Response(searchResults, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": origin || "*",
-        "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-      }
-    });
+    return await crossSearch("Statblock");
+  } else if (apiPath.startsWith("/e5/spell/search")) {
+    return await crossSearch("Spell");
+  } else if (apiPath.startsWith("/e5/item/search")) {
+    return await crossSearch("Item");
   } else if (apiPath.startsWith("/edit/statblock/")) {
-    const requestedSlug = apiPath.replace(/^\/edit\/statblock\//, "");
-    let DBFetch = await env.EXTRA_STATBLOCKS.get(requestedSlug);
-    if (DBFetch) {
-      let parsedData = JSON.parse(DBFetch);
-      return new Response(JSON.stringify(parsedData), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": origin || "*",
-          "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
-          "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        }
-    });
-    }
+    return await editResponse("Statblock");
   } else if (apiPath.startsWith("/edit/spell/")) {
-    const requestedID = apiPath.replace(/^\/edit\/spell\//, "");
-    let DBFetch = await env.EXTRA_SPELLS.get(requestedID);
-    if (DBFetch) {
-      let parsedData = JSON.parse(DBFetch);
-      return new Response(JSON.stringify(parsedData), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": origin || "*",
-          "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
-          "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        }
-    });
-    }
+    return await editResponse("Spell");
   } else if (apiPath.startsWith("/edit/item/")) {
-    const requestedID = apiPath.replace(/^\/edit\/item\//, "");
-    let DBFetch = await env.EXTRA_ITEMS.get(requestedID);
-    if (DBFetch) {
-      let parsedData = JSON.parse(DBFetch);
-      return new Response(JSON.stringify(parsedData), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": origin || "*",
-          "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
-          "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        }
-    });
-    }
-  } else {
-    const requestedSlug = apiPath.replace(/^\/e5\/statblock\//, "");
-    let DBFetch = await env.EXTRA_STATBLOCKS.get(requestedSlug);
-    if (DBFetch) {
-      let parsedData = JSON.parse(DBFetch);
-      parsedData = await resolveStatblock(parsedData);
-      return new Response(JSON.stringify(parsedData), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": origin || "*",
-          "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
-          "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        }
-    });
+    return await editResponse("Item");
+  } else if (apiPath.startsWith("/e5/statblock/")) {
+    try {
+      const requestedSlug = apiPath.replace(/^\/e5\/statblock\//, "");
+      let DBFetch = await env.EXTRA_STATBLOCKS.get(requestedSlug);
+      if (DBFetch) {
+        let parsedData = JSON.parse(DBFetch);
+        parsedData = await resolveStatblock(parsedData);
+        return new Response(JSON.stringify(parsedData), {
+          status: 200,
+          headers: headers
+      });
+      } else {
+        return new Response(JSON.stringify({ error: "Not Found" }), {
+          status: 404,
+          headers: headers
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching statblock data:", error);
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+        headers: headers
+      });
     }
   }
 
-  const apiResponse = await fetch(targetUrl, {
-    headers: headers,
-    // additional headers can be added here
-  });
-
+  const apiResponse = await fetch(targetUrl, {headers: headers});
   const { status } = apiResponse;
   const contentType = apiResponse.headers.get("content-type") || "";
   const body = await apiResponse.arrayBuffer();
+  headers["Content-Type"] = contentType;
 
   return new Response(body, {
     status,
-    headers: {
-      "Content-Type": contentType,
-      "Access-Control-Allow-Origin": origin || "*",
-      "Access-Control-Allow-Methods": "GET,OPTIONS,POST",
-      "Access-Control-Allow-Headers": "Content-Type,Authorization",
-    }
+    headers: headers
   });
   }
 }
