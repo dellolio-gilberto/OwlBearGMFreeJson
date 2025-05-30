@@ -335,11 +335,6 @@ async function editResponse(type){
           status: 200,
           headers: headers
       });
-      } else {
-        return new Response(JSON.stringify({ error: "Not Found" }), {
-          status: 404,
-          headers: headers
-        });
       }
     } catch (error) {
       console.error("Error fetching statblock data:", error);

@@ -43,11 +43,11 @@ export const SearchResult5e = (props: SearchResultProps) => {
             <ul className={"search-results"}>
                 {entries
                     .sort((a, b) => {
-                        if (a.source && ["cc", "tob2", "tob", "tob3", "menagerie", "wotc-srd"].includes(a.source)) {
+                        if (a.source && ["cc", "tob2", "tob", "tob3", "menagerie", "wotc-srd", "wotc-srd52"].includes(a.source)) {
                             return 1;
                         } else if (
                             b.source &&
-                            ["cc", "tob2", "tob", "tob3", "menagerie", "wotc-srd"].includes(b.source)
+                            ["cc", "tob2", "tob", "tob3", "menagerie", "wotc-srd", "wotc-srd52"].includes(b.source)
                         ) {
                             return -1;
                         } else {
@@ -63,7 +63,7 @@ export const SearchResult5e = (props: SearchResultProps) => {
                             <li
                                 className={`search-result ${entry.slug === props.current ? "current" : ""} ${
                                     entry.source &&
-                                    !["cc", "tob2", "tob", "tob3", "menagerie", "wotc-srd"].includes(entry.source)
+                                    !["cc", "tob2", "tob", "tob3", "menagerie", "wotc-srd", "wotc-srd52"].includes(entry.source)
                                         ? entry.source.match(/\- NoTA$/)
                                             ? "no-ta"
                                             : "custom"
