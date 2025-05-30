@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ItemSearchModal } from './ItemSearchModal';
 import { SpellSearchModal } from './SpellSearchModal';
+import { JsonFormEditor } from './FormEditor.tsx';
 
 interface JsonEditorProps {
     isOpen: boolean;
@@ -63,10 +64,11 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
     const [jsonText, setJsonText] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [isValid, setIsValid] = useState(true);
-    const [viewMode, setViewMode] = useState<'formatted' | 'raw'>('raw');
     const [isLoading, setIsLoading] = useState(false);
     const [showItemSearch, setShowItemSearch] = useState(false);
     const [showSpellSearch, setShowSpellSearch] = useState(false);
+    const [viewMode, setViewMode] = useState<'formatted' | 'raw' | 'form'>('form');
+
 
     // ✅ CAMBIATO: Fetch JSON dall'endpoint invece di usare jsonData
     useEffect(() => {
@@ -100,6 +102,13 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
         const value = e.target.value;
         setJsonText(value);
         
+        // ✅ Validazione migliorata
+        if (value.trim() === '') {
+            setError(null);
+            setIsValid(false);
+            return;
+        }
+        
         try {
             JSON.parse(value);
             setError(null);
@@ -110,8 +119,13 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
         }
     };
 
-    // ✅ CAMBIATO: Salva sul proxy con POST
+    // ✅ Migliorare la validazione del save
     const handleSave = async () => {
+        if (!jsonText.trim()) {
+            setError("Cannot save empty data");
+            return;
+        }
+        
         if (!isValid) {
             setError("Cannot save invalid JSON");
             return;
@@ -121,20 +135,19 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
         try {
             const parsedJson = JSON.parse(jsonText);
             
-            // ✅ POST sul proxy
             const response = await fetch(`${proxyUrl}/edit/statblock/${slug}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: jsonText
+                body: JSON.stringify(parsedJson, null, 2) // ✅ Assicurati che sia JSON valido
             });
 
             if (!response.ok) {
                 throw new Error(`Save failed: ${response.status}`);
             }
 
-            onSave(parsedJson); // Callback per aggiornare UI locale
+            onSave(parsedJson);
             onClose();
         } catch (err) {
             setError(`Save failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -154,9 +167,64 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
         }
     };
 
-    // ✅ Aggiunge un item all'equipment
+    /// ...existing code...
+
+    const hasEquipment = () => {
+        try {
+            if (!jsonText.trim()) return false;
+            const data = JSON.parse(jsonText);
+            return Array.isArray(data.equipment);
+        } catch {
+            return false;
+        }
+    };
+
+    const hasSpells = () => {
+        try {
+            if (!jsonText.trim()) return false;
+            const data = JSON.parse(jsonText);
+            return Array.isArray(data.spells);
+        } catch {
+            return false;
+        }
+    };
+
+    const addSpellToList = (spell: Spell) => {
+        try {
+            if (!jsonText.trim()) {
+                setError("No JSON data available to modify");
+                return;
+            }
+            
+            const data = JSON.parse(jsonText);
+            if (!Array.isArray(data.spells)) {
+                data.spells = [];
+            }
+
+            // ✅ Controlla se lo spell non è già presente
+            if (!data.spells.includes(spell.id)) {
+                data.spells.push(spell.id);
+                setJsonText(JSON.stringify(data, null, 2));
+                console.log("✅ Spell aggiunto:", spell.name);
+            } else {
+                console.log("⚠️ Spell già presente:", spell.name);
+            }
+            
+            setShowSpellSearch(false);
+            
+        } catch (error) {
+            setError("Failed to add spell to list");
+            console.error("❌ Errore aggiunta spell:", error);
+        }
+    };
+
     const addItemToEquipment = (item: Item) => {
         try {
+            if (!jsonText.trim()) {
+                setError("No JSON data available to modify");
+                return;
+            }
+            
             const data = JSON.parse(jsonText);
             if (!Array.isArray(data.equipment)) {
                 data.equipment = [];
@@ -183,47 +251,7 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
         }
     };
 
-    const hasEquipment = () => {
-        try {
-            const data = JSON.parse(jsonText);
-            return Array.isArray(data.equipment);
-        } catch {
-            return false;
-        }
-    };
-
-    const hasSpells = () => {
-        try {
-            const data = JSON.parse(jsonText);
-            return Array.isArray(data.spells);
-        } catch {
-            return false;
-        }
-    };
-
-    const addSpellToList = (spell: Spell) => {
-        try {
-            const data = JSON.parse(jsonText);
-            if (!Array.isArray(data.spells)) {
-                data.spells = [];
-            }
-
-            // ✅ Controlla se lo spell non è già presente
-            if (!data.spells.includes(spell.id)) {
-                data.spells.push(spell.id);
-                setJsonText(JSON.stringify(data, null, 2));
-                console.log("✅ Spell aggiunto:", spell.name);
-            } else {
-                console.log("⚠️ Spell già presente:", spell.name);
-            }
-            
-            setShowSpellSearch(false);
-            
-        } catch (error) {
-            setError("Failed to add spell to list");
-            console.error("❌ Errore aggiunta spell:", error);
-        }
-    };
+// ...existing code...
 
     if (!isOpen) return null;
 
@@ -234,6 +262,13 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                     <h2 className="json-editor-title">{title}</h2>
                     <div className="json-editor-controls">
                         <div className="view-toggle">
+                            <button 
+                                className={`toggle-btn ${viewMode === 'form' ? 'active' : ''}`}
+                                onClick={() => setViewMode('form')}
+                                disabled={!isValid || isLoading}
+                            >
+                                📝 Form
+                            </button>
                             <button 
                                 className={`toggle-btn ${viewMode === 'formatted' ? 'active' : ''}`}
                                 onClick={() => setViewMode('formatted')}
@@ -246,7 +281,7 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                                 onClick={() => setViewMode('raw')}
                                 disabled={isLoading}
                             >
-                                ✏️ Edit
+                                ✏️ Raw
                             </button>
                         </div>
                         <button 
@@ -331,11 +366,45 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                         <div className="json-loading">
                             <div className="loading-spinner">⏳ Loading JSON from server...</div>
                         </div>
-                    ) : viewMode === 'formatted' && isValid ? (
+                    ) : viewMode === 'form' && isValid && jsonText.trim() ? (
+                        <JsonFormEditor 
+                            jsonData={(() => {
+                                try {
+                                    return JSON.parse(jsonText);
+                                } catch {
+                                    return {};
+                                }
+                            })()}
+                            onChange={(newData) => {
+                                // ✅ CORREZIONE: Aggiorna il jsonText con i nuovi dati
+                                const newJsonText = JSON.stringify(newData, null, 2);
+                                setJsonText(newJsonText);
+                                console.log('JsonEditor received update from FormEditor:', newData);
+                                console.log('New JSON text:', newJsonText);
+                                
+                                // ✅ Verifica che sia ancora JSON valido
+                                try {
+                                    JSON.parse(newJsonText);
+                                    setIsValid(true);
+                                    setError(null);
+                                } catch (err) {
+                                    setError("Form generated invalid JSON");
+                                    setIsValid(false);
+                                }
+                            }}
+                            disabled={isLoading}
+                        />
+                    ) : viewMode === 'formatted' && isValid && jsonText.trim() ? (
                         <div className="json-viewer">
-                            <JsonTreeView data={JSON.parse(jsonText)} />
+                            <JsonTreeView data={(() => {
+                                try {
+                                    return JSON.parse(jsonText);
+                                } catch {
+                                    return {};
+                                }
+                            })()} />
                         </div>
-                    ) : (
+                    ) : jsonText.trim() ? (
                         <div className="json-raw-editor">
                             <textarea
                                 className={`json-editor-textarea ${!isValid ? 'json-editor-textarea-error' : ''}`}
@@ -346,9 +415,49 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
                                 disabled={isLoading}
                             />
                         </div>
+                    ) : (
+                        <div className="json-empty-state">
+                            <div className="empty-state-content">
+                                <div className="empty-state-icon">📄</div>
+                                <h3>No Data Available</h3>
+                                <p>The JSON data could not be loaded from the server.</p>
+                                <button 
+                                    className="json-editor-btn json-editor-btn-primary"
+                                    onClick={() => {
+                                        // Retry loading
+                                        if (slug && proxyUrl) {
+                                            setIsLoading(true);
+                                            setError(null);
+                                            
+                                            fetch(`${proxyUrl}/edit/statblock/${slug}`)
+                                                .then(response => {
+                                                    if (!response.ok) {
+                                                        throw new Error(`Failed to fetch: ${response.status}`);
+                                                    }
+                                                    return response.json();
+                                                })
+                                                .then(data => {
+                                                    setJsonText(JSON.stringify(data, null, 2));
+                                                    setIsValid(true);
+                                                })
+                                                .catch(err => {
+                                                    setError(`Failed to load JSON: ${err instanceof Error ? err.message : String(err)}`);
+                                                    setJsonText("");
+                                                    setIsValid(false);
+                                                })
+                                                .finally(() => {
+                                                    setIsLoading(false);
+                                                });
+                                        }
+                                    }}
+                                    disabled={isLoading}
+                                >
+                                    🔄 Retry Loading
+                                </button>
+                            </div>
+                        </div>
                     )}
                 </div>
-
                 <div className="json-editor-footer">
                     <div className="footer-info">
                         <span className="char-count">
