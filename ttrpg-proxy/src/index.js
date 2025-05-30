@@ -1,7 +1,8 @@
 export default {  async fetch(request, env, ctx) {
   const url = new URL(request.url);
   const apiPath = url.pathname;
-  let targetUrl = `https://api.tabletop-almanac.com/api/v1${apiPath}${url.search}`;
+  const apiUrl = `https://api.tabletop-almanac.com/api/v1`;
+  let targetUrl = `${apiUrl}${apiPath}${url.search}`;
   const origin = request.headers.get("Origin");
   const auth = request.headers.get("Authorization");
   const headers = {
@@ -94,7 +95,7 @@ export default {  async fetch(request, env, ctx) {
       }
       else {
         let spellID = await env.ID_REMAP.get(spell);
-        const apiResponse = await fetch(`https://api.tabletop-almanac.com/api/v1/e5/spell/${spellID}`, {
+        const apiResponse = await fetch(`${apiUrl}/e5/spell/${spellID}`, {
           headers: headers,
           // additional headers can be added here
         });
@@ -122,7 +123,7 @@ export default {  async fetch(request, env, ctx) {
       }
       else {
         let itemID = await env.ID_REMAP.get(equipment.item);
-        const apiResponse = await fetch(`https://api.tabletop-almanac.com/api/v1/e5/item/${itemID}`, {
+        const apiResponse = await fetch(`${apiUrl}/e5/item/${itemID}`, {
           headers: headers,
           // additional headers can be added here
         });
@@ -266,10 +267,18 @@ async function editResponse(type){
         headers: headers
       });
     }
-    return new Response(JSON.stringify({ error: "Not Found" }), {
-      status: 404,
-      headers: headers
-    });
+    else {
+      const apiResponse = await fetch(`${apiUrl}/e5/${type.toLowerCase()}/${requestedID}`, {headers: headers});
+      const { status } = apiResponse;
+      const contentType = apiResponse.headers.get("content-type") || "";
+      const body = await apiResponse.arrayBuffer();
+      headers["Content-Type"] = contentType;
+
+      return new Response(body, {
+        status,
+        headers: headers
+      });
+    }
   } catch (error) {
     console.error(`Error fetching ${type} data:`, error);
     return new Response(JSON.stringify({ error: error.message }), {

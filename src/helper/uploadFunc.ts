@@ -3,7 +3,7 @@
 
 export async function uploadJsonFile(file: File, proxyUrl?: string): Promise<void> {
   if (file.type !== "application/json") {
-    throw new Error("Il file deve essere un JSON.");
+    throw new Error("File needs to be a JSON.");
   }
 
   if (!proxyUrl) {
@@ -14,9 +14,11 @@ export async function uploadJsonFile(file: File, proxyUrl?: string): Promise<voi
     const text = await file.text();
     const json = JSON.parse(text);
 
-    if (typeof json.source === "string" && !json.source.endsWith(" - NoTA")) {
+    if (typeof json.source === "string" && !json.source.endsWith(" - NoTA"))
       json.source = json.source + " - NoTA";
-    }
+
+    if (typeof json.slug === "string" && !json.slug.endsWith("-nota"))
+      json.slug = json.slug + "-nota";
 
     const response = await fetch(`${proxyUrl}`, {
       method: "POST",
@@ -29,13 +31,12 @@ export async function uploadJsonFile(file: File, proxyUrl?: string): Promise<voi
     const result = await response.json();
 
     if (!response.ok) {
-      console.error("Errore dal server:", result);
-      throw new Error(result.error || "Errore nella POST");
+      console.error("Server Error:", result);
+      throw new Error(result.error || "Failed to upload JSON file.");
     }
 
-    console.log("Upload completato:", result);
   } catch (err) {
-    console.error("Errore durante l'upload:", err);
+    console.error("Error uploading JSON file:", err);
     throw err;
   }
 }

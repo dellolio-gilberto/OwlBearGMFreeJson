@@ -134,7 +134,12 @@ export const JsonEditor: React.FC<JsonEditorProps> = ({
         setIsLoading(true);
         try {
             const parsedJson = JSON.parse(jsonText);
-            
+            if (typeof parsedJson.source === "string" && !parsedJson.source.endsWith(" - NoTA"))
+                parsedJson.source = parsedJson.source + " - NoTA";
+
+            if (typeof parsedJson.slug === "string" && !parsedJson.slug.endsWith("-nota"))
+                parsedJson.slug = parsedJson.slug + "-nota";
+
             const response = await fetch(`${proxyUrl}/edit/statblock/${slug}`, {
                 method: 'POST',
                 headers: {
