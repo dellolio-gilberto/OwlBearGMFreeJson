@@ -12,13 +12,62 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
     disabled = false 
 }) => {
     const [formData, setFormData] = useState(jsonData || {});
-    const [originalStructure, setOriginalStructure] = useState(jsonData || {});
+    const [originalStructure] = useState(jsonData || {});
 
+    // Stato locale per input languages
+    const [languagesInput, setLanguagesInput] = useState(
+        Array.isArray(jsonData?.languages) ? jsonData.languages.join(', ') : (jsonData?.languages || '')
+    );
     useEffect(() => {
-        console.log('JsonFormEditor received data:', jsonData);
-        setFormData(jsonData || {});
-        setOriginalStructure(jsonData || {});
-    }, [jsonData]);
+        setLanguagesInput(
+            Array.isArray(formData.languages) ? formData.languages.join(', ') : (formData.languages || '')
+        );
+    }, [formData.languages]);
+
+    // Stato locale per input items/equipment
+    const [itemsInput, setItemsInput] = useState(() => {
+        if (typeof jsonData?.items === 'string') return jsonData.items;
+        if (Array.isArray(jsonData?.items)) return jsonData.items.join(', ');
+        if (jsonData?.equipment) {
+            if (typeof jsonData.equipment === 'string') return jsonData.equipment;
+            if (Array.isArray(jsonData.equipment)) return jsonData.equipment.join(', ');
+        }
+        return '';
+    });
+    useEffect(() => {
+        if (typeof formData.items === 'string') setItemsInput(formData.items);
+        else if (Array.isArray(formData.items)) setItemsInput(formData.items.join(', '));
+        else if (formData.equipment) {
+            if (typeof formData.equipment === 'string') setItemsInput(formData.equipment);
+            else if (Array.isArray(formData.equipment)) setItemsInput(formData.equipment.join(', '));
+        } else setItemsInput('');
+    }, [formData.items, formData.equipment]);
+
+    // Stato locale per input hit dice
+    const [hitDiceInput, setHitDiceInput] = useState(() => {
+        if (formData.hit_dice) return formData.hit_dice;
+        if (formData.hp?.hit_dice) return formData.hp.hit_dice;
+        if (formData.hit_die) return formData.hit_die;
+        return '';
+    });
+    useEffect(() => {
+        if (formData.hit_dice) setHitDiceInput(formData.hit_dice);
+        else if (formData.hp?.hit_dice) setHitDiceInput(formData.hp.hit_dice);
+        else if (formData.hit_die) setHitDiceInput(formData.hit_die);
+        else setHitDiceInput('');
+    }, [formData.hit_dice, formData.hp?.hit_dice, formData.hit_die]);
+
+    // Stato locale per input speed
+    const [speedInput, setSpeedInput] = useState(() => {
+        if (typeof formData.speed === 'string') return formData.speed;
+        if (formData.speed?.walk) return formData.speed.walk;
+        return '1';
+    });
+    useEffect(() => {
+        if (typeof formData.speed === 'string') setSpeedInput(formData.speed);
+        else if (formData.speed?.walk) setSpeedInput(formData.speed.walk);
+        else setSpeedInput('1');
+    }, [formData.speed]);
 
     const updateField = (path: string, value: any) => {
         console.log('Updating field:', path, 'to:', value);
@@ -104,14 +153,14 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
         return 10; // Default value
     };
 
-    // Helper per ottenere la velocità
-    const getSpeed = () => {
-        if (typeof formData.speed === 'string') {
-            return formData.speed;
-        }
-        if (formData.speed?.walk) return formData.speed.walk;
-        return '30 ft.';
-    };
+    // // Helper per ottenere la velocità
+    // const getSpeed = () => {
+    //     if (typeof formData.speed === 'string') {
+    //         return formData.speed;
+    //     }
+    //     if (formData.speed?.walk) return formData.speed.walk;
+    //     return '';
+    // };
 
     const renderBasicInfo = () => (
         <div className="form-section">
@@ -192,21 +241,18 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
                     <input
                         type="text"
                         className="form-input"
-                        value={(() => {
-                            if (Array.isArray(formData.languages)) {
-                                return formData.languages.join(', ');
-                            } else if (typeof formData.languages === 'string') {
-                                return formData.languages;
-                            }
-                            return '';
-                        })()}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            const languagesArray = value 
-                                ? value.split(',').map(lang => lang.trim()).filter(lang => lang)
+                        value={languagesInput}
+                        onChange={(e) => setLanguagesInput(e.target.value)}
+                        onBlur={() => {
+                            const languagesArray = languagesInput
+                                ? languagesInput.split(',').map((lang: string)  => lang.trim()).filter((lang: string) => lang)
                                 : [];
                             updateField('languages', languagesArray);
-                            console.log('Updated Languages to:', languagesArray);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.currentTarget.blur();
+                            }
                         }}
                         disabled={disabled}
                         placeholder="e.g., Common, Draconic"
@@ -260,13 +306,13 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
         return 1;
     };
 
-    // Helper per ottenere hit dice
-    const getHitDice = () => {
-        if (formData.hit_dice) return formData.hit_dice;
-        if (formData.hp?.hit_dice) return formData.hp.hit_dice;
-        if (formData.hit_die) return formData.hit_die;
-        return '1d8';
-    };
+    // // Helper per ottenere hit dice
+    // const getHitDice = () => {
+    //     if (formData.hit_dice) return formData.hit_dice;
+    //     if (formData.hp?.hit_dice) return formData.hp.hit_dice;
+    //     if (formData.hit_die) return formData.hit_die;
+    //     return '1d8';
+    // };
 
         const renderCombatStats = () => (
         <div className="form-section">
@@ -296,15 +342,19 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
                     <input
                         type="text"
                         className="form-input"
-                        value={getHitDice()}
-                        onChange={(e) => {
-                            // ✅ CORREZIONE: Aggiorna il campo corretto basato sulla struttura esistente
+                        value={hitDiceInput}
+                        onChange={(e) => setHitDiceInput(e.target.value)}
+                        onBlur={() => {
                             if (formData.hp && typeof formData.hp === 'object') {
-                                updateField('hp.hit_dice', e.target.value);
+                                updateField('hp.hit_dice', hitDiceInput);
                             } else {
-                                updateField('hit_dice', e.target.value);
+                                updateField('hit_dice', hitDiceInput);
                             }
-                            console.log('Updated Hit Dice to:', e.target.value);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.currentTarget.blur();
+                            }
                         }}
                         disabled={disabled}
                         placeholder="e.g., 2d8+2"
@@ -315,19 +365,22 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
                     <input
                         type="text"
                         className="form-input"
-                        value={getSpeed()}
-                        onChange={(e) => {
-                            const newValue = e.target.value;
-                            // Se speed è un oggetto, aggiorna walk, altrimenti la stringa intera
+                        value={speedInput}
+                        onChange={(e) => setSpeedInput(e.target.value)}
+                        onBlur={() => {
                             if (typeof formData.speed === 'object' && formData.speed !== null) {
-                                updateField('speed.walk', newValue);
+                                updateField('speed.walk', speedInput);
                             } else {
-                                updateField('speed', newValue);
+                                updateField('speed', speedInput);
                             }
-                            console.log('Updated Speed to:', newValue);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.currentTarget.blur();
+                            }
                         }}
                         disabled={disabled}
-                        placeholder="e.g., 30 ft."
+                        placeholder="e.g., 30 ft./9 m"
                     />
                 </div>
                 <div className="form-field">
@@ -420,27 +473,23 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
                 <label className="form-label">Items</label>
                 <textarea
                     className="form-textarea"
-                    value={(() => {
-                        // Gestisci diversi formati per gli items
-                        if (typeof formData.items === 'string') return formData.items;
-                        if (Array.isArray(formData.items)) return formData.items.join(', ');
-                        if (formData.equipment) {
-                            if (typeof formData.equipment === 'string') return formData.equipment;
-                            if (Array.isArray(formData.equipment)) return formData.equipment.join(', ');
-                        }
-                        return '';
-                    })()}
-                    onChange={(e) => {
-                        const value = e.target.value;
+                    value={itemsInput}
+                    onChange={(e) => setItemsInput(e.target.value)}
+                    onBlur={() => {
                         // Mantieni il formato originale se possibile
                         if (Array.isArray(formData.items)) {
-                            updateField('items', value.split(',').map(item => item.trim()).filter(item => item));
+                            updateField('items', itemsInput.split(',').map((item: string) => item.trim()).filter((item: string)  => item));
                         } else if (Array.isArray(formData.equipment)) {
-                            updateField('equipment', value.split(',').map(item => item.trim()).filter(item => item));
+                            updateField('equipment', itemsInput.split(',').map((item: string) => item.trim()).filter((item: string)  => item));
                         } else {
-                            updateField('items', value);
+                            updateField('items', itemsInput);
                         }
-                        console.log('Updated Items to:', value);
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            e.currentTarget.blur();
+                        }
                     }}
                     disabled={disabled}
                     placeholder="Enter items separated by commas, e.g., Sword, Shield, Potion of Healing"
@@ -452,7 +501,6 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
             </div>
         </div>
     );
-
     return (
         <div className="json-form-editor">
             {renderBasicInfo()}
