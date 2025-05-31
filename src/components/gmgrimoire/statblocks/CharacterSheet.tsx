@@ -156,15 +156,15 @@ export const CharacterSheet = (props: { itemId: string }) => {
             }
         
             if (file.type !== "application/json") {
-                console.log("Devi caricare un file JSON valido!");
+                console.log("Plese submit a valid JSON file.");
                 return;
             }
         
             try {
                 await uploadJsonFile(file, proxyUrl);
-                console.log("Upload completato!");
+                console.log("Upload completed successfully!");
             } catch (error: any) {
-                console.log("Errore durante l'upload: " + error.message);
+                console.log("Error: " + error.message);
             }
         
             event.target.value = "";
