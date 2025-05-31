@@ -13,13 +13,29 @@
 .title {
     display: flex;
     justify-content: space-between; 
+    align-items: center;
     gap: 2ch;
     margin-bottom: 4px;
     max-height: 46px;
     overflow: hidden;
 }
 
+.title > div:first-child {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    max-width: 70%;
+    flex-shrink: 1;
+    flex-grow: 1;
+}
+
 .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex-shrink: 1;
+    flex-grow: 1;
     margin: 0;
     font-weight: 800;
     font-size: 1.5rem;
@@ -30,6 +46,11 @@
     font-style: italic;
     font-weight: 500;
     font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .headerActions {
