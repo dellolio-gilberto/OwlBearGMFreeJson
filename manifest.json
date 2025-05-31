@@ -1,6 +1,6 @@
 {
     "name": "Game Master's Grimorie Plus",
-    "version": "1.7.2",
+    "version": "1.7.5",
     "manifest_version": 1,
     "author": "dellolio-gilberto, TheEpicSmoking",
     "description": "Expanded version of GM's Grimoire with local statblocks (no TT Almanac), Azgaar map sync, and custom integrations.",
