@@ -21,6 +21,8 @@ const E5StatBlock = () => {
     const tokenSlug = statblock?.slug;
     const proxyUrl = getTtrpgProxyUrl(room || undefined);
 
+    const statblockQuery = useE5GetStatblock(tokenSlug);
+
     const handleDuplicate = async () => {
         if (!statblock) return;
         try {
@@ -82,7 +84,10 @@ const E5StatBlock = () => {
                 slug={tokenSlug || ""}
                 proxyUrl={proxyUrl || ""}
                 onSave={(editedJson) => {
-                    console.log("JSON saved:", editedJson);
+                    setShowJsonEditor(false);
+                    statblockQuery.refetch();
+                    OBR.notification.show("Statblock updated successfully!");
+                    console.log("Statblock updated:", editedJson);
                 }}
                 title="Edit Statblock JSON"
             />

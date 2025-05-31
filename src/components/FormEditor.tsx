@@ -71,51 +71,66 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
 
     const updateField = (path: string, value: any) => {
         console.log('Updating field:', path, 'to:', value);
-        
+
         const newData = JSON.parse(JSON.stringify(formData)); // Deep clone
         const keys = path.split('.');
         let current = newData;
-        
-        // ✅ CORREZIONE SPECIALE per ability scores
+
+        // Campi che devono essere stringa
+        const stringFields = [
+            'damage_vulnerabilities',
+            'damage_resistances',
+            'damage_immunities',
+            'condition_immunities'
+        ];
+        // Campi che devono essere array
+        const arrayFields = [
+            'languages',
+            'senses',
+            'items',
+            'equipment'
+        ];
+
+        // Gestione speciale per ability scores
         if (['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'].includes(path)) {
             const stat = path;
-            
-            // Controlla dove sono memorizzate le stats nell'oggetto originale
             if (formData.stats && formData.stats[stat] !== undefined) {
-                // Le stats sono nell'oggetto stats
                 if (!newData.stats) newData.stats = {};
                 newData.stats[stat] = parseInt(value) || 10;
-                console.log(`Updated stats.${stat} to:`, parseInt(value) || 10);
             } else if (formData.ability_scores && formData.ability_scores[stat] !== undefined) {
-                // Le stats sono nell'oggetto ability_scores
                 if (!newData.ability_scores) newData.ability_scores = {};
                 newData.ability_scores[stat] = parseInt(value) || 10;
-                console.log(`Updated ability_scores.${stat} to:`, parseInt(value) || 10);
             } else if (formData[stat] !== undefined) {
-                // Le stats sono direttamente nell'oggetto principale
                 newData[stat] = parseInt(value) || 10;
-                console.log(`Updated ${stat} to:`, parseInt(value) || 10);
             } else {
-                // Fallback: crea in stats se non esiste da nessuna parte
                 if (!newData.stats) newData.stats = {};
                 newData.stats[stat] = parseInt(value) || 10;
-                console.log(`Created stats.${stat} with value:`, parseInt(value) || 10);
             }
-        } 
-        // ✅ AGGIUNTO: Gestione speciale per languages (deve rimanere array)
-        else if (path === 'languages') {
-            // Languages deve SEMPRE essere un array
+        }
+        // Gestione speciale per campi array
+        else if (arrayFields.includes(path)) {
             if (Array.isArray(value)) {
-                newData.languages = value;
+                newData[path] = value;
             } else if (typeof value === 'string') {
-                newData.languages = value ? value.split(',').map(lang => lang.trim()).filter(lang => lang) : [];
+                newData[path] = value
+                    ? value.split(',').map((v: string) => v.trim()).filter((v: string) => v)
+                    : [];
             } else {
-                newData.languages = [];
+                newData[path] = [];
             }
-            console.log('Updated languages to:', newData.languages);
-        } 
+        }
+        // Gestione speciale per campi stringa
+        else if (stringFields.includes(path)) {
+            if (Array.isArray(value)) {
+                newData[path] = value.join(', ');
+            } else if (typeof value === 'string') {
+                newData[path] = value;
+            } else {
+                newData[path] = '';
+            }
+        }
+        // Gestione normale per tutti gli altri campi
         else {
-            // ✅ Gestione normale per tutti gli altri campi
             for (let i = 0; i < keys.length - 1; i++) {
                 if (!current[keys[i]]) {
                     if (originalStructure[keys[i]]) {
@@ -126,11 +141,10 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
                 }
                 current = current[keys[i]];
             }
-            
             const finalKey = keys[keys.length - 1];
             current[finalKey] = value;
         }
-        
+
         try {
             setFormData(newData);
             onChange(newData);
@@ -412,7 +426,7 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
                     <input
                         type="text"
                         className="form-input"
-                        value={formData.damage_vulnerabilities || formData.vulnerabilities || ''}
+                        value={Array.isArray(formData.damage_vulnerabilities) ? formData.damage_vulnerabilities.join(', ') : (formData.damage_vulnerabilities || '')}
                         onChange={(e) => updateField('damage_vulnerabilities', e.target.value)}
                         disabled={disabled}
                         placeholder="e.g., Fire, Lightning"
@@ -423,7 +437,7 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
                     <input
                         type="text"
                         className="form-input"
-                        value={formData.damage_resistances || formData.resistances || ''}
+                        value={Array.isArray(formData.damage_resistances) ? formData.damage_resistances.join(', ') : (formData.damage_resistances || '')}
                         onChange={(e) => updateField('damage_resistances', e.target.value)}
                         disabled={disabled}
                         placeholder="e.g., Fire, Cold"
@@ -434,7 +448,7 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
                     <input
                         type="text"
                         className="form-input"
-                        value={formData.damage_immunities || formData.immunities || ''}
+                        value={Array.isArray(formData.damage_immunities) ? formData.damage_immunities.join(', ') : (formData.damage_immunities || '')}
                         onChange={(e) => updateField('damage_immunities', e.target.value)}
                         disabled={disabled}
                         placeholder="e.g., Poison, Necrotic"
@@ -445,7 +459,7 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
                     <input
                         type="text"
                         className="form-input"
-                        value={formData.condition_immunities || ''}
+                        value={Array.isArray(formData.condition_immunities) ? formData.condition_immunities.join(', ') : (formData.condition_immunities || '')}
                         onChange={(e) => updateField('condition_immunities', e.target.value)}
                         disabled={disabled}
                         placeholder="e.g., Charmed, Frightened"
@@ -456,7 +470,7 @@ export const JsonFormEditor: React.FC<JsonFormEditorProps> = ({
                     <input
                         type="text"
                         className="form-input"
-                        value={formData.senses || ''}
+                        value={Array.isArray(formData.senses) ? formData.senses.join(', ') : (formData.senses || '')}
                         onChange={(e) => updateField('senses', e.target.value)}
                         disabled={disabled}
                         placeholder="e.g., Darkvision 60 ft., passive Perception 12"
